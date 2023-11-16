@@ -1,16 +1,17 @@
 import React from 'react'
 import { Resizable } from 're-resizable';
 import MonacoEditor from '../components/MonacoEditor';
-import { Box, TextField } from "@mui/material"
+import { Box } from "@mui/material"
 import InputOutput from '../components/InputOutput';
 import CompilerTopBar from '../components/CompilerTopBar';
 
 export default function Compiler() {
-  const handleResizeStart = (e, direction) => {
-    if (direction !== "right") {
-      e.stopPropagation();
-    }
+  const onResizeStart = (event, { size, handle }) => {
+    
   };
+  const onResizeStop = (e, {size,handle}) => {
+
+  }
   return (
     <div style={{
       display: "flex",
@@ -21,7 +22,7 @@ export default function Compiler() {
       justifyContent: "flex-start",
       backgroundColor: "#000"
     }}>
-      <CompilerTopBar/>
+      <CompilerTopBar text="( Compiler )"/>
       <div style={{
         display: "flex",
         height: "90%",
@@ -34,12 +35,14 @@ export default function Compiler() {
             height: "90%"
           }}
           style={{
-            border: '1px solid #333',
-            borderRight: '15px solid #333'
+            border: '1px solid #000',
+            borderRight: '15px solid #000',
+            resize: 'horizontal'
           }}
-          onResizeStart={handleResizeStart}
+          onResizeStart={onResizeStart}
+          onResizeStop={onResizeStop}
           minWidth="40%"
-          maxWidth="100%"
+          maxWidth="80%"
           minHeight="100%"
           maxHeight="100%"
         >
