@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Resizable } from 're-resizable';
 import MonacoEditor from '../components/MonacoEditor';
 import { Box } from "@mui/material"
@@ -6,6 +6,10 @@ import InputOutput from '../components/InputOutput';
 import CompilerTopBar from '../components/CompilerTopBar';
 
 export default function Compiler() {
+  const editorRef = useRef(null);
+  const handleEditorDidMount = (editor, monaco)=> {
+    editorRef.current = editor;
+  }
   const onResizeStart = (event, { size, handle }) => {
     
   };
@@ -31,7 +35,7 @@ export default function Compiler() {
       }}>
         <Resizable
           defaultSize={{
-            width: "80%",
+            width: "60%",
             height: "90%"
           }}
           style={{
@@ -42,11 +46,11 @@ export default function Compiler() {
           onResizeStart={onResizeStart}
           onResizeStop={onResizeStop}
           minWidth="40%"
-          maxWidth="80%"
+          maxWidth="65%"
           minHeight="100%"
           maxHeight="100%"
         >
-          <MonacoEditor />
+          <MonacoEditor handleEditorDidMount={handleEditorDidMount} />
         </Resizable>
         <Box
           sx={{
@@ -55,10 +59,12 @@ export default function Compiler() {
             justifyContent: "space-evenly",
             alignItems: "center",
             flexDirection: "column",
-            height: "100%"
+            height: "100%",
+            minWidth: "400px",
+            overflowX: "scroll"
           }}
         >
-          <InputOutput />
+          <InputOutput editorRef={editorRef}/>
         </Box>
       </div>
     </div>

@@ -2,7 +2,18 @@ import React, { useEffect, useState } from 'react'
 import EditorLoader from '../Loaders/EditorLoader';
 import Editor from "@monaco-editor/react";
 
-export default function MonacoEditor() {
+export default function MonacoEditor({
+  handleEditorDidMount,
+  startCode= `#include<bits/stdc++.h>
+
+using namespace std;
+  
+int main(){
+    // Start typing your code here
+    
+    return 0;
+}`
+}) {
     const [isLoading,setIsLoading] = useState(true);
     useEffect(()=>{
         const loadMonacoEditor = async()=>{
@@ -20,8 +31,8 @@ export default function MonacoEditor() {
           height="100%"
           language="cpp"
           theme="vs-dark"
-          value="// some comment"
-          
+          value={startCode}
+          onMount={handleEditorDidMount}
         />
       ) : (
         <EditorLoader />
