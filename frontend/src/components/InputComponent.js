@@ -57,7 +57,7 @@ export default function InputComponent({ lang, setLang }) {
           sx={{
             width: "250px",
             height: "80%",
-            backgroundColor: "#222",
+            backgroundColor: "#444",
             justifyContent: "space-evenly",
             alignItems: "center",
             flexDirection: "row",
@@ -108,7 +108,7 @@ export default function InputComponent({ lang, setLang }) {
           },
         }}
         sx={{
-          backgroundColor: "#222",
+          backgroundColor: "#444",
           width: "100%",
           border: "1px solid #555",
           borderBottom: "none",
