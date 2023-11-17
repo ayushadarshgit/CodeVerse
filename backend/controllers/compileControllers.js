@@ -2,7 +2,23 @@ const { default: axios } = require("axios");
 const Compiler = require("compilex")
 const util = require('util');
 const options = { stats: true }
+require("dotenv").config();
+
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
+const RAPIDAPI_HOST = process.env.RAPIDAPI_HOST;
 Compiler.init(options)
+
+
+apiHandler = {
+    method: "POST",
+    url: "https://online-code-compiler.p.rapidapi.com/v1/",
+    headers: {
+        'content-type': 'application/json',
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
+    },
+    data: {}
+};
 
 async function compileCodeCompilex(req, res) {
     const code = req.body.code;
@@ -82,16 +98,6 @@ async function compileCodeCompilex(req, res) {
     }
 }
 
-const apiHelper = {
-    method: "POST",
-    url: "https://online-code-compiler.p.rapidapi.com/v1/",
-    headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': '2b70649d7cmshd099b7e69e9fef4p1e711bjsn9f127ae1f450',
-        'X-RapidAPI-Host': 'online-code-compiler.p.rapidapi.com'
-    },
-    data: {}
-};
 
 async function compileCodeRapidApi(req, res) {
     const lang = req.body.lang;
@@ -103,6 +109,7 @@ async function compileCodeRapidApi(req, res) {
         code: code,
         input: input
     }
+    console.log(apiHandler);
     if(lang === "cpp"){
         data.language = "cpp17"
     }else if(lang === "java"){
@@ -114,6 +121,7 @@ async function compileCodeRapidApi(req, res) {
     if(data.language !== "cpp17" && data.language !== "java" && data.language !== "python3"){
         return res.json({success: false,message: "Language not compatible"});
     }
+    const apiHelper = apiHandler;
     apiHelper.data = data;      
     try {
         const response = await axios.request(apiHelper);
