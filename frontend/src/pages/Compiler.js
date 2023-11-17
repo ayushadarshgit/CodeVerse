@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Resizable } from 're-resizable';
 import MonacoEditor from '../components/MonacoEditor';
 import { Box } from "@mui/material"
@@ -7,6 +7,7 @@ import CompilerTopBar from '../components/CompilerTopBar';
 
 export default function Compiler() {
   const editorRef = useRef(null);
+  const [lang, setLang] = useState("cpp");
   const handleEditorDidMount = (editor, monaco)=> {
     editorRef.current = editor;
   }
@@ -50,7 +51,7 @@ export default function Compiler() {
           minHeight="100%"
           maxHeight="100%"
         >
-          <MonacoEditor handleEditorDidMount={handleEditorDidMount} />
+          <MonacoEditor handleEditorDidMount={handleEditorDidMount} lang={lang} setLang={setLang} />
         </Resizable>
         <Box
           sx={{
@@ -64,7 +65,7 @@ export default function Compiler() {
             overflowX: "scroll"
           }}
         >
-          <InputOutput editorRef={editorRef}/>
+          <InputOutput editorRef={editorRef} lang={lang} setLang={setLang} />
         </Box>
       </div>
     </div>

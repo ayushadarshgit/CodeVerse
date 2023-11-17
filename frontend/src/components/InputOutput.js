@@ -1,4 +1,4 @@
-import { Alert, Divider, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import { Alert, Divider, Skeleton, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import React, { useState } from 'react'
 import InputComponent from './InputComponent';
 
@@ -8,12 +8,19 @@ import ShareIcon from '@mui/icons-material/Share';
 import EditIcon from '@mui/icons-material/Edit';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CopyToClipboard from '../Config/CopyToClipboard';
+import InputCompilingLoader from '../Loaders/InputCompilingLoader';
+import OutputComponent from './OutputComponent';
+import OutputCompilingLoader from '../Loaders/OutputCompilingLoader';
 
-export default function InputOutput({ editorRef }) {
+export default function InputOutput({ editorRef, lang, setLang }) {
   const [view, setView] = useState(true);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
+  const [output, setOutput] = useState({
+    message: "Not Compiled",
+    output: "Compile The Code To View Output...."
+  })
 
 
   const handleOpen = () => setOpen(true);
@@ -64,7 +71,7 @@ export default function InputOutput({ editorRef }) {
       flexDirection: "column",
       justifyContent: "space-between",
       alignItems: "center",
-      
+
       overflow: "scroll"
     }}>
       <div style={{
@@ -99,7 +106,7 @@ export default function InputOutput({ editorRef }) {
         <div
           style={{
             width: "100px",
-            color: view === "output" ? "#fff" : "#aaa",
+            color: !view ? "#fff" : "#aaa",
             fontSize: "large",
             display: "flex",
             justifyContent: "center",
@@ -115,30 +122,63 @@ export default function InputOutput({ editorRef }) {
           Output
         </div>
       </div>
-      <div style={{ width: "100%", height: "80%", display: "flex", justifyContent: "space-evenly", alignItems: "center", flexDirection: "column" }}>
-        {view && <InputComponent />}
-        {/* {view === "output" && <div>{output}</div>} */}
-      </div>
-      <div style={{ width: "100%", height: "10%", justifyContent: "flex-end", alignItems: "center" }}>
-        {view && <SpeedDial
-          ariaLabel="SpeedDial tooltip example"
-          sx={{ position: 'absolute', bottom: 16, right: 16 }}
-          icon={<SpeedDialIcon fontSize="large" openIcon={<EditIcon />} />}
-          onClose={handleClose}
-          onOpen={handleOpen}
-          open={open}
-          direction='left'
-        >
-          {actions.map((action) => (
-            <SpeedDialAction
-              key={action.name}
-              icon={action.icon}
-              tooltipTitle={action.name}
-              onClick={handleClose}
-              color='#000'
-            />
-          ))}
-        </SpeedDial>}
+      {view && <div
+        style={{
+          width: "100%",
+          height: "80%",
+          display: "flex",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+          flexDirection: "column"
+        }}
+      >
+        {
+          (isCompiling ?
+            <InputCompilingLoader /> :
+            <InputComponent lang={lang} setLang={setLang}
+            />)}
+      </div>}
+      {view && <div
+        style={{
+          width: "100%",
+          height: "10%",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center"
+        }}
+      >
+        {
+          (isCompiling
+            ?
+            <Skeleton
+              sx={{
+                backgroundColor: "#666",
+                marginRight: "30px",
+                marginBottom: "15px"
+              }}
+              variant='circular'
+              height={55}
+              width={55}
+            /> :
+            <SpeedDial
+              ariaLabel="SpeedDial tooltip example"
+              sx={{ position: 'absolute', bottom: 16, right: 16 }}
+              icon={<SpeedDialIcon fontSize="large" openIcon={<EditIcon />} />}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              open={open}
+              direction='left'
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.name}
+                  icon={action.icon}
+                  tooltipTitle={action.name}
+                  onClick={handleClose}
+                  color='#000'
+                />
+              ))}
+            </SpeedDial>)}
         <Snackbar
           open={copied}
           autoHideDuration={2000}
@@ -149,7 +189,16 @@ export default function InputOutput({ editorRef }) {
             Code Copied To Clipboard
           </Alert>
         </Snackbar>
-      </div>
+      </div>}
+      {
+        !view && 
+        <div style={{
+          width: "100%",
+          height: "92%"
+        }}>
+          { !isCompiling ? <OutputComponent output={output} /> : <OutputCompilingLoader />}
+        </div>
+      }
     </div>
   )
 }

@@ -12,7 +12,8 @@ int main(){
     // Start typing your code here
     
     return 0;
-}`
+}`,
+lang
 }) {
     const [isLoading,setIsLoading] = useState(true);
     useEffect(()=>{
@@ -29,7 +30,7 @@ int main(){
         <Editor
           width="100%"
           height="100%"
-          language="cpp"
+          language={lang}
           theme="vs-dark"
           value={startCode}
           onMount={handleEditorDidMount}
