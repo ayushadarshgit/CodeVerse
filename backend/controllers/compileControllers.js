@@ -29,22 +29,23 @@ async function compileCodeCompilex(req, res) {
             const envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } };
             if (!input) {
                 Compiler.compileCPP(envData, code, (data) => {
+                    console.log(data);
                     if (data.output) {
                         Compiler.flush(function () { });
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
                         Compiler.flush(function () { });
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             } else {
                 Compiler.compileCPPWithInput(envData, code, input, (data) => {
                     if (data.output) {
                         Compiler.flush(function () { });
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
                         Compiler.flush(function () { });
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             }
@@ -54,20 +55,20 @@ async function compileCodeCompilex(req, res) {
                 Compiler.compileJava(envData, code, (data) => {
                     if (data.output) {
                         Compiler.flush(function () { });
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
                         Compiler.flush(function () { });
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             } else {
                 Compiler.compileJavaWithInput(envData, code, input, (data) => {
                     if (data.output) {
                         Compiler.flush(function () { });
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
                         Compiler.flush(function () { });
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             }
@@ -77,18 +78,20 @@ async function compileCodeCompilex(req, res) {
                 Compiler.compilePython(envData, code, (data) => {
                     if (data.output) {
                         Compiler.flush(function () { });
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
                         Compiler.flush(function () { });
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             } else {
                 Compiler.compilePythonWithInput(envData, code, input, (data) => {
                     if (data.output) {
-                        res.send({ success: true, message: "Compiled Successfully", output: data.output });
+                        Compiler.flush(function () { });
+                        return res.json({ success: true, message: "Compiled Successfully", output: data.output });
                     } else {
-                        res.send({ success: false, message: "Compilation Error", output: data.error })
+                        Compiler.flush(function () { });
+                        return res.json({ success: false, message: "Compilation Error", output: data.error })
                     }
                 })
             }
@@ -109,14 +112,12 @@ async function compileCodeRapidApi(req, res) {
         code: code,
         input: input
     }
-    console.log(apiHandler);
     if(lang === "cpp"){
         data.language = "cpp17"
     }else if(lang === "java"){
         data.language = "java"
     }else if(lang === "python"){
         data.language = "python3"
-        console.log(data)
     }
     if(data.language !== "cpp17" && data.language !== "java" && data.language !== "python3"){
         return res.json({success: false,message: "Language not compatible"});
@@ -125,7 +126,7 @@ async function compileCodeRapidApi(req, res) {
     apiHelper.data = data;      
     try {
         const response = await axios.request(apiHelper);
-        res.send(response.data);
+        res.send({success: true,message: "Compiled Successfully",output: response.data.output});
     } catch (error) {
         console.log(error);
         const errorString = util.inspect(error, { depth: null });

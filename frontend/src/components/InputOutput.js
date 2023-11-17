@@ -1,6 +1,7 @@
 import { Alert, Divider, Skeleton, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import React, { useState } from 'react'
 import InputComponent from './InputComponent';
+import { CompileCode } from "../Config/CompileCode"
 
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
@@ -13,13 +14,15 @@ import OutputComponent from './OutputComponent';
 import OutputCompilingLoader from '../Loaders/OutputCompilingLoader';
 
 export default function InputOutput({ editorRef, lang, setLang }) {
+  const [input, setInput] = useState("");
   const [view, setView] = useState(true);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
   const [output, setOutput] = useState({
     message: "Not Compiled",
-    output: "Compile The Code To View Output...."
+    output: ["Compile The Code To View Output...."],
+    success: true
   })
 
 
@@ -27,8 +30,13 @@ export default function InputOutput({ editorRef, lang, setLang }) {
   const handleClose = () => setOpen(false);
 
   const handleCompile = () => {
-    setIsCompiling(true);
-    setView(false)
+    const model = editorRef.current.getModel();
+    const formattedCode = model.getValue();
+    CompileCode(setIsCompiling, setView, setOutput, formattedCode, lang, input)
+
+
+    // Need To Import This function from CompilerCode.js file
+    // CompileCodeRapidApi(setIsCompiling, setView, setOutput, formattedCode, lang, input)
   }
 
   const handleCopy = () => {
@@ -52,16 +60,6 @@ export default function InputOutput({ editorRef, lang, setLang }) {
     { icon: <FileCopyIcon sx={{ color: "#000" }} onClick={handleCopy} />, name: 'Copy Code' },
     { icon: <ShareIcon sx={{ color: "#000" }} />, name: 'Share Code' },
   ];
-
-  // const [output,setOutput] = useState("test value");
-
-  // useEffect(()=>{
-  //   const model = editorRef.current.getModel();
-  //   const formattedCode = model.getValue();
-  // // alert(formattedCode);
-  //   // setOutput(formattedCode);
-  //   console.log(formattedCode)
-  // },[view])
   return (
     <div style={{
       backgroundColor: "#333",
@@ -135,7 +133,7 @@ export default function InputOutput({ editorRef, lang, setLang }) {
         {
           (isCompiling ?
             <InputCompilingLoader /> :
-            <InputComponent lang={lang} setLang={setLang}
+            <InputComponent lang={lang} setLang={setLang} input={input} setInput={setInput}
             />)}
       </div>}
       {view && <div
@@ -191,12 +189,12 @@ export default function InputOutput({ editorRef, lang, setLang }) {
         </Snackbar>
       </div>}
       {
-        !view && 
+        !view &&
         <div style={{
           width: "100%",
           height: "92%"
         }}>
-          { !isCompiling ? <OutputComponent output={output} /> : <OutputCompilingLoader />}
+          {!isCompiling ? <OutputComponent output={output} /> : <OutputCompilingLoader />}
         </div>
       }
     </div>

@@ -15,8 +15,8 @@ import {
 } from '@mui/material'
 import React, { useState } from 'react'
 
-export default function InputComponent({ lang, setLang }) {
-  const [input, setInput] = useState("");
+export default function InputComponent({ lang, setLang, input, setInput }) {
+  
 
   const [showSelector, setShowSelector] = useState(false);
 
