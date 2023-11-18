@@ -8,7 +8,7 @@ export default function CompilerTopBar({ text }) {
         ode
         <span style={{ fontSize: "35px", color: "#0079FF" }}>V</span>
         erse
-        <span style={{color: "#F1EB90",borderBottom: "1px solid #F2FFE9",borderRadius: "15px"}}>
+        <span style={{color: "#F1EB90",borderBottom: "1px solid #F2FFE9",borderRadius: "15px",marginLeft: "10px"}}>
           {text}
         </span> 
       </p>

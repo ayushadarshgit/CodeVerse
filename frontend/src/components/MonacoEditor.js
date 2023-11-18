@@ -9,7 +9,6 @@ export default function MonacoEditor({
 using namespace std;
   
 int main(){
-    // Start typing your code here
     
     return 0;
 }`,
