@@ -29,7 +29,6 @@ async function compileCodeCompilex(req, res) {
             const envData = { OS: "windows", cmd: "g++", options: { timeout: 10000 } };
             if (!input) {
                 Compiler.compileCPP(envData, code, (data) => {
-                    console.log(data);
                     if (data.output) {
                         Compiler.flush(function () { });
                         return res.json({ success: true, message: "Compiled Successfully", output: data.output });
