@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const compileRoutes = require("./routes/compileRoutes");
+const ExpressError = require("./utils/ExpressError");
 
 const app = express()
 
@@ -24,6 +25,13 @@ app.get("/",(req,res)=>{
 })
 
 app.use('/codeverse/compile',compileRoutes);
+
+app.use((err,req,res,next)=>{
+    const {statusCode = 500, message = "Something went wrong"} = err;
+    if(!err.message) err.message = "Something went wrong"
+    return res.json({success: false,err: err});
+})
+
 
 app.listen(5000,()=>{
     console.log("Listening on port 5000")
