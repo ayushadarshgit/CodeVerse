@@ -18,11 +18,11 @@ const userSchema = new Schema({
     },
     isEmailVerified: {
         type: Boolean,
-        required: true
+        default: false
     },
     isPhoneVerified: {
         type: Boolean,
-        required: true
+        default: false
     },
     photo: {
         type: Schema.Types.ObjectId,

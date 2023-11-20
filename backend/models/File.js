@@ -11,7 +11,8 @@ const fileSchema = new Schema({
         required: true
     },
     content: {
-        type: String
+        type: Schema.Types.ObjectId,
+        ref: "Code"
     }
 },{
     timestamps: true

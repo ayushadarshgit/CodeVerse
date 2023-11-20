@@ -1,11 +1,24 @@
 const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+require('dotenv').config();
+const databaseUrl = process.env.DATABASE_URL;
 
 const compileRoutes = require("./routes/compileRoutes");
-const ExpressError = require("./utils/ExpressError");
+const userRoutes = require("./routes/userRoutes");
 
-const app = express()
-
+mongoose.connect(databaseUrl,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+const db = mongoose.connection;
+db.on("error",()=>{
+    console.log("Connection Error");
+})
+db.once("open",()=>{
+    console.log("Database connected");
+})
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,10 +37,10 @@ app.get("/",(req,res)=>{
     res.send("Sending file from port 5000")
 })
 
+app.use("/codeverse/user",userRoutes);
 app.use('/codeverse/compile',compileRoutes);
 
 app.use((err,req,res,next)=>{
-    const {statusCode = 500, message = "Something went wrong"} = err;
     if(!err.message) err.message = "Something went wrong"
     return res.json({success: false,err: err});
 })

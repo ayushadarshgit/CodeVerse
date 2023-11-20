@@ -16,6 +16,14 @@ const messageSchema = new Schema({
         type: String,
         required: true
     },
+    iscode: {
+        type: Boolean,
+        required: true
+    },
+    code: {
+        type: Schema.Types.ObjectId,
+        ref: "Code"
+    },
     readBy: [{
         type: Schema.Types.ObjectId,
         ref: "User"

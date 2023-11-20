@@ -16,7 +16,7 @@ const folderSchema = new Schema({
     }],
     isdefaultfolder: {
         type: Boolean,
-        required: true
+        default: false
     }
 },{
     timestamps: true

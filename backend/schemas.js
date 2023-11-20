@@ -9,10 +9,10 @@ const userSchema = Joi.object({
             .pattern(new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
             .required(),
         password: Joi.string()
-            .pattern(new RegExp("^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$"))
+            .pattern(new RegExp("^(?=[A-Za-z\d@$!%*?&])[^@$!%*?&]*[A-Za-z\d@$!%*?&]{6,}$"))
             .required(),
         phoneNumber: Joi.string()
-        .pattern(new RegExp("^\\+91 [6789]\\d{9}$"))
+            .pattern(new RegExp("^\\+91 [6789]\\d{9}$"))
             .required()
     }).required()
 });
@@ -54,14 +54,28 @@ const messageSchema = Joi.object({
         sender: Joi.any()
             .required(),
         message: Joi.string()
+            .required(),
+        iscode: Joi.boolean()
             .required()
     }).required()
 });
+
+const userLogin = Joi.object({
+    user: Joi.object({
+        username: Joi.string()
+            .pattern(new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            .required(),
+        password: Joi.string()
+            .pattern(new RegExp("^(?=[A-Za-z\d@$!%*?&])[^@$!%*?&]*[A-Za-z\d@$!%*?&]{6,}$"))
+            .required()
+    }).required()
+})
 
 module.exports = {
     userSchema,
     chatSchema,
     fileSchema,
     folderSchema,
-    messageSchema
+    messageSchema,
+    userLogin
 }

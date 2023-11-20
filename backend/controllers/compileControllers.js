@@ -2,7 +2,6 @@ const { default: axios } = require("axios");
 const Compiler = require("compilex")
 const util = require('util');
 const options = { stats: true }
-require("dotenv").config();
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 const RAPIDAPI_HOST = process.env.RAPIDAPI_HOST;
@@ -29,7 +28,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compileCPP(envData, code, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {
@@ -57,7 +56,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compileCPPWithInput(envData, code, input, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {
@@ -87,7 +86,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compileJava(envData, code, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {
@@ -116,7 +115,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compileJavaWithInput(envData, code, input, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {
@@ -146,7 +145,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compilePython(envData, code, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {
@@ -174,7 +173,7 @@ async function compileCodeCompilex(req, res) {
                 try {
                     const compilePromise = new Promise((resolve, reject) => {
                         Compiler.compilePythonWithInput(envData, code, input, (data) => {
-                            if (data.output) {
+                            if (!data.error) {
                                 Compiler.flush(function () { });
                                 resolve({ success: true, message: "Compiled Successfully", output: data.output });
                             } else {

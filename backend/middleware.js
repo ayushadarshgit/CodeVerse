@@ -1,4 +1,4 @@
-const { userSchema, chatSchema, fileSchema, folderSchema, messageSchema } = require("./schemas");
+const { userSchema, chatSchema, fileSchema, folderSchema, messageSchema, userLogin } = require("./schemas");
 const ExpressError = require("./utils/ExpressError");
 
 const mapErrorDetails = (err) => {
@@ -53,13 +53,29 @@ module.exports.validateMessage = (req, res, next) => {
 
 module.exports.validateCodeToCompile = (req, res, next) => {
     const { code, lang } = req.body;
-    if (!code){
+    if (!code) {
         const msg = "Provide Code To Compile..."
-        throw new ExpressError(msg,400);
-    }else if(!lang){
+        throw new ExpressError(msg, 400);
+    } else if (!lang) {
         const msg = "Provide Language To Compile..."
-        throw new ExpressError(msg,400);
-    }else{
+        throw new ExpressError(msg, 400);
+    } else {
         next();
     }
+}
+
+module.exports.validateUserLogin = (req, res, next) => {
+    const { error } = userLogin.validate(req.body);
+    if (error) {
+        mapErrorDetails(error);
+    } else {
+        next();
+    }
+}
+
+module.exports.validateUserSignin = (req, res, next) => { 
+    if(!req.body.token){
+        throw new ExpressError("Token Not Provided", 400);
+    }
+    next();
 }
