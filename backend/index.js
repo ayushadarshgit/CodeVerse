@@ -3,10 +3,20 @@ const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require('dotenv').config();
+const p = require('./utils/passportSetup');
 const databaseUrl = process.env.DATABASE_URL;
+const cookieSession = require("express-session");
 
 const compileRoutes = require("./routes/compileRoutes");
 const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const passportRoutes = require("./routes/passportRoutes");
+
+app.use(cookieSession({
+    maxAge: 24*60*60*1000,
+    // keys: [keys.session.cookieKey]
+    secret: "thenewninjaisawesomeiguess"
+}));
 
 mongoose.connect(databaseUrl,{
     useNewUrlParser: true,
@@ -39,6 +49,8 @@ app.get("/",(req,res)=>{
 
 app.use("/codeverse/user",userRoutes);
 app.use('/codeverse/compile',compileRoutes);
+app.use("/codeverse/message",messageRoutes);
+app.use("/codeverse/google",passportRoutes);
 
 app.use((err,req,res,next)=>{
     if(!err.message) err.message = "Something went wrong"

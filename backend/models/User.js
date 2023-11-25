@@ -20,6 +20,9 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    googleId: {
+        type: String
+    },
     isPhoneVerified: {
         type: Boolean,
         default: false
@@ -28,11 +31,17 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Image"
     },
+    isCloudinary :{
+        type: Boolean
+    },
     defaultfolder: {
         type: Schema.Types.ObjectId,
         ref: "Folder",
         required: true,
         unique: true
+    },
+    lastToken: {
+        type: String
     }
 },{
     timestamps: true

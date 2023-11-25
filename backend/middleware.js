@@ -79,3 +79,10 @@ module.exports.validateUserSignin = (req, res, next) => {
     }
     next();
 }
+
+module.exports.authCheck = (req,res,next)=>{
+    if(!req.user){
+        return res.send("Not authenticated");
+    }
+    next();
+}
