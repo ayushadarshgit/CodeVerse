@@ -15,7 +15,7 @@ const chatRoutes = require("./routes/chatRoutes");
 
 app.use(cookieSession({
     maxAge: 24*60*60*1000,
-    secret: "thenewninjaisawesomeiguess"
+    secret: process.env.SESSION_SECRET
 }));
 
 mongoose.connect(databaseUrl,{
