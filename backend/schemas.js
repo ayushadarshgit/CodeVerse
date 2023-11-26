@@ -23,11 +23,7 @@ const chatSchema = Joi.object({
             .required(),
         users: Joi.array()
             .items(Joi.any())
-            .min(2),
-        isgroupchat: Joi.boolean()
-            .required(),
-        admin: Joi.any()
-            .required()
+            .min(2)
     }).required()
 });
 

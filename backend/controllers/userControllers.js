@@ -72,16 +72,20 @@ module.exports.signUpUser = async (req, res) => {
 
         await createdFolder.save();
 
-        let image;
+        const newUser = new User(req.body.user);
+        
+        let image = req.file;
         if (image) {
             image = new Image({
                 url: req.file.path,
                 filename: req.file.filename
             });
             await image.save();
+            newUser.isCloudinary = true;
+        }else{
+            newUser.isCloudinary = false;
         }
 
-        const newUser = new User(req.body.user);
         newUser.password = p;
         newUser.defaultfolder = createdFolder;
         if (req.file) {

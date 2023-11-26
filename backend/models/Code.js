@@ -9,10 +9,14 @@ const codeSchema = new Schema({
     language: {
         type: String,
         default: "plaintext"
+    },
+    title: {
+        type: String,
+        required: true
     }
-},{
+}, {
     timestamps: true
 })
 
 
-module.exports = mongoose.model("Code",codeSchema);
+module.exports = mongoose.model("Code", codeSchema);

@@ -19,6 +19,13 @@ const chatSchema = new Schema({
     icon: {
         type: Schema.Types.ObjectId,
         ref: "Image"
+    },
+    isCloudinary: {
+        type: Boolean
+    },
+    latestMessage: {
+        type: Schema.Types.ObjectId,
+        ref: "Message"
     }
 },{
     timestamps: true

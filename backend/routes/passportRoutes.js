@@ -5,10 +5,15 @@ const passports = require("../controllers/passportControllers");
 
 const router = require("express").Router();
 
-router.get('/signin',passport.authenticate('google',{
-    scope: ['profile','email']
-}));
-router.get('/login',passport.authenticate('google'),authCheck,passports.loginSuccess);
-router.get('/loginfail',passports.loginFail);
+router.route('/signin')
+    .get(passport.authenticate('google', {
+        scope: ['profile', 'email']
+    }));
+
+router.route('/login')
+    .get(passport.authenticate('google'), authCheck, passports.loginSuccess);
+
+router.route('/loginfail')
+    .get(passports.loginFail);
 
 module.exports = router;

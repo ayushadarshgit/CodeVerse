@@ -73,16 +73,40 @@ module.exports.validateUserLogin = (req, res, next) => {
     }
 }
 
-module.exports.validateUserSignin = (req, res, next) => { 
-    if(!req.body.token){
+module.exports.validateUserSignin = (req, res, next) => {
+    if (!req.body.token) {
         throw new ExpressError("Token Not Provided", 400);
     }
     next();
 }
 
-module.exports.authCheck = (req,res,next)=>{
-    if(!req.user){
+module.exports.authCheck = (req, res, next) => {
+    if (!req.user) {
         return res.send("Not authenticated");
     }
     next();
+}
+
+module.exports.isLoggedIn = async (req, res, next) => {
+    try {
+        const { token } = req.body;
+        const decoded = jwt.verify(token, JWTSecret);
+        const userToLogin = await User.findOne({ email: decoded.username });
+        if (!userToLogin) {
+            throw new ExpressError("No user found", 400);
+        }
+        if (userToLogin.lastToken !== token) {
+            throw new ExpressError("Token given has been expired!", 400);
+        }
+        req.user = userToLogin;
+        next();
+    } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            throw new ExpressError("Token Expired ", 400);
+        } else if (error.name === 'JsonWebTokenError') {
+            throw new ExpressError('Invalid JWT token.', 400);
+        } else {
+            throw new ExpressError(error.message, 400);
+        }
+    }
 }
