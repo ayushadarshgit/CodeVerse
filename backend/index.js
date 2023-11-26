@@ -12,6 +12,7 @@ const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const passportRoutes = require("./routes/passportRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const folderRoutes = require("./routes/folderRoutes");
 
 app.use(cookieSession({
     maxAge: 24*60*60*1000,
@@ -52,6 +53,7 @@ app.use('/codeverse/compile',compileRoutes);
 app.use("/codeverse/message",messageRoutes);
 app.use("/codeverse/google",passportRoutes);
 app.use("/codeverse/chats",chatRoutes);
+app.use("/codeverse/folders",folderRoutes);
 
 app.use((err,req,res,next)=>{
     if(!err.message) err.message = "Something went wrong"

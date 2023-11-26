@@ -64,15 +64,16 @@ module.exports.signUpUser = async (req, res) => {
         if (us) {
             throw new ExpressError("Phone Already exists in the database", 400);
         }
+        const newUser = new User(req.body.user);
 
         const p = await Bcrypt.hashPassword(password);
         const createdFolder = new Folder();
         createdFolder.foldername = "root"
         createdFolder.isdefaultfolder = true;
+        createdFolder.owner = newUser;
 
         await createdFolder.save();
 
-        const newUser = new User(req.body.user);
         
         let image = req.file;
         if (image) {
