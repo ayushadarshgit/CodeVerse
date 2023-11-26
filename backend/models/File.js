@@ -13,6 +13,10 @@ const fileSchema = new Schema({
     content: {
         type: Schema.Types.ObjectId,
         ref: "Code"
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
     }
 },{
     timestamps: true
