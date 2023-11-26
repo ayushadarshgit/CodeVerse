@@ -15,7 +15,6 @@ const chatRoutes = require("./routes/chatRoutes");
 
 app.use(cookieSession({
     maxAge: 24*60*60*1000,
-    // keys: [keys.session.cookieKey]
     secret: "thenewninjaisawesomeiguess"
 }));
 

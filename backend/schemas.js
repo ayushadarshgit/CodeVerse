@@ -49,12 +49,21 @@ const messageSchema = Joi.object({
             .required(),
         sender: Joi.any()
             .required(),
-        message: Joi.string()
-            .required(),
         iscode: Joi.boolean()
             .required()
     }).required()
 });
+
+const codeSchema = Joi.object({
+    code: Joi.object({
+        code: Joi.string()
+            .required(),
+        language: Joi.string()
+            .required(),
+        title: Joi.string()
+            .required()
+    }).required()
+})
 
 const userLogin = Joi.object({
     user: Joi.object({
@@ -73,5 +82,6 @@ module.exports = {
     fileSchema,
     folderSchema,
     messageSchema,
-    userLogin
+    userLogin,
+    codeSchema
 }

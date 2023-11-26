@@ -1,4 +1,4 @@
-const { userSchema, chatSchema, fileSchema, folderSchema, messageSchema, userLogin } = require("./schemas");
+const { userSchema, chatSchema, fileSchema, folderSchema, messageSchema, userLogin, codeSchema } = require("./schemas");
 const ExpressError = require("./utils/ExpressError");
 
 const mapErrorDetails = (err) => {
@@ -47,7 +47,14 @@ module.exports.validateMessage = (req, res, next) => {
     if (error) {
         mapErrorDetails(error);
     } else {
-        next();
+        if (!req.body.message.iscode && !req.body.message.message) {
+            throw new ExpressError("Please provide the message To be sent", 400);
+        }
+        const { err } = codeSchema.validate(req.body.message);
+        if (err) {
+            mapErrorDetails(err);
+        }
+        else next();
     }
 }
 
