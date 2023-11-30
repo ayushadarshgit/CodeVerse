@@ -12,20 +12,12 @@ const userSchema = new Schema({
     password: {
         type: String,
     },
-    phoneNumber: {
-        type: String,
-        unique: true
-    },
     isEmailVerified: {
         type: Boolean,
         default: false
     },
     googleId: {
         type: String
-    },
-    isPhoneVerified: {
-        type: Boolean,
-        default: false
     },
     photo: {
         type: Schema.Types.ObjectId,

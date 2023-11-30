@@ -11,13 +11,9 @@ const otpSchema = new Schema({
         type: String,
         required: true
     },
-    isEmailOtp: {
+    isForgotPassword: {
         type: Boolean,
-        required: true
-    },
-    isMobileOtp: {
-        type: Boolean,
-        required: true
+        default: false
     }
 },{
     timestamps: true,

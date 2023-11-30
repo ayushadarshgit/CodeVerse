@@ -1,12 +1,14 @@
+const User = require("./models/User");
 const { userSchema, chatSchema, fileSchema, folderSchema, messageSchema, userLogin, codeSchema } = require("./schemas");
 const ExpressError = require("./utils/ExpressError");
+const jwt = require("jsonwebtoken");
 
 const mapErrorDetails = (err) => {
     const msg = err.details.map(el => el.message).join(',')
     throw new ExpressError(msg, 400);
 }
 
-module.exports.validateUser = (req, res, next) => {
+module.exports.validateUser = async (req, res, next) => {
     const { error } = userSchema.validate(req.body)
     if (error) {
         mapErrorDetails(error);
@@ -15,7 +17,7 @@ module.exports.validateUser = (req, res, next) => {
     }
 }
 
-module.exports.validateChat = (req, res, next) => {
+module.exports.validateChat = async (req, res, next) => {
     const { error } = chatSchema.validate(req.body);
     if (error) {
         mapErrorDetails(error);
@@ -24,7 +26,7 @@ module.exports.validateChat = (req, res, next) => {
     }
 }
 
-module.exports.validateFile = (req, res, next) => {
+module.exports.validateFile = async (req, res, next) => {
     const { error } = fileSchema.validate(req.body);
     if (error) {
         mapErrorDetails(error);
@@ -33,7 +35,7 @@ module.exports.validateFile = (req, res, next) => {
     }
 }
 
-module.exports.validateFolder = (req, res, next) => {
+module.exports.validateFolder = async (req, res, next) => {
     const { error } = folderSchema.validate(req.body);
     if (error) {
         mapErrorDetails(error);
@@ -42,7 +44,7 @@ module.exports.validateFolder = (req, res, next) => {
     }
 }
 
-module.exports.validateMessage = (req, res, next) => {
+module.exports.validateMessage = async (req, res, next) => {
     const { error } = messageSchema.validate(req.body);
     if (error) {
         mapErrorDetails(error);
@@ -58,7 +60,7 @@ module.exports.validateMessage = (req, res, next) => {
     }
 }
 
-module.exports.validateCodeToCompile = (req, res, next) => {
+module.exports.validateCodeToCompile = async (req, res, next) => {
     const { code, lang } = req.body;
     if (!code) {
         const msg = "Provide Code To Compile..."
@@ -71,7 +73,7 @@ module.exports.validateCodeToCompile = (req, res, next) => {
     }
 }
 
-module.exports.validateUserLogin = (req, res, next) => {
+module.exports.validateUserLogin = async (req, res, next) => {
     const { error } = userLogin.validate(req.body);
     if (error) {
         mapErrorDetails(error);
@@ -80,7 +82,7 @@ module.exports.validateUserLogin = (req, res, next) => {
     }
 }
 
-module.exports.validateUserSignin = (req, res, next) => {
+module.exports.validateUserSignin = async (req, res, next) => {
     if (!req.body.token) {
         throw new ExpressError("Token Not Provided", 400);
     }
@@ -97,7 +99,7 @@ module.exports.authCheck = (req, res, next) => {
 module.exports.isLoggedIn = async (req, res, next) => {
     try {
         const { token } = req.body;
-        const decoded = jwt.verify(token, JWTSecret);
+        const decoded = jwt.verify(token, process.env.JWTSECRET);
         const userToLogin = await User.findOne({ email: decoded.username });
         if (!userToLogin) {
             throw new ExpressError("No user found", 400);

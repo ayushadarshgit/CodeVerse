@@ -5,15 +5,15 @@ const { validateUserSignin, isLoggedIn, validateFile } = require("../middleware"
 const catchAsync = require("../utils/catchAsync");
 
 router.route('/')
-    .get(validateUserSignin,isLoggedIn,catchAsync(files.getFileContent));
+    .get(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.getFileContent));
 
 router.route('/create')
-    .post(validateUserSignin,isLoggedIn, validateFile, catchAsync(files.createFile));
+    .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn), catchAsync(validateFile), catchAsync(files.createFile));
 
 router.route('/save')
-    .put(validateUserSignin,isLoggedIn,catchAsync(files.saveChanges));
+    .put(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.saveChanges));
 
 router.route('/delete')
-    .put(validateUserSignin,isLoggedIn,catchAsync(files.deleteFile));
+    .put(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.deleteFile));
 
 module.exports = router;

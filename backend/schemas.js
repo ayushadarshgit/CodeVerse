@@ -10,9 +10,6 @@ const userSchema = Joi.object({
             .required(),
         password: Joi.string()
             .pattern(new RegExp("^(?=[A-Za-z\d@$!%*?&])[^@$!%*?&]*[A-Za-z\d@$!%*?&]{6,}$"))
-            .required(),
-        phoneNumber: Joi.string()
-            .pattern(new RegExp("^\\+91 [6789]\\d{9}$"))
             .required()
     }).required()
 });

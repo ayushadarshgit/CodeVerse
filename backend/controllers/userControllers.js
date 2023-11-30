@@ -55,22 +55,18 @@ module.exports.signInUser = async (req, res) => {
 
 module.exports.signUpUser = async (req, res) => {
     try {
-        const { email, password, phoneNumber } = req.body.user;
+        const { email, password } = req.body.user;
         const u = await User.findOne({ email: email });
         if (u) {
             throw new ExpressError("Email address Already exists", 400);
         }
-        const us = await User.findOne({ phoneNumber: phoneNumber });
-        if (us) {
-            throw new ExpressError("Phone Already exists in the database", 400);
-        }
+
         const newUser = new User(req.body.user);
 
         const p = await Bcrypt.hashPassword(password);
         const createdFolder = new Folder();
         createdFolder.foldername = "root"
         createdFolder.isdefaultfolder = true;
-        createdFolder.owner = newUser;
 
         await createdFolder.save();
 
@@ -92,6 +88,7 @@ module.exports.signUpUser = async (req, res) => {
         if (req.file) {
             newUser.photo = image
         }
+        newUser.isEmailVerified = false;
         const token = jwt.sign({ username: newUser.email }, JWTSecret, { expiresIn: '7d' });
         newUser.lastToken = token;
         await newUser.save();

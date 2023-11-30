@@ -5,12 +5,12 @@ const catchAsync = require("../utils/catchAsync");
 const router = require("express").Router();
 
 router.route('/getdetails')
-    .get(validateUserSignin,isLoggedIn,catchAsync(folders.getFolderDetails));
+    .get(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(folders.getFolderDetails));
 
 router.route('/createfolder')
-    .post(validateUserSignin,isLoggedIn,validateFolder,catchAsync(folders.createFolder));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(validateFolder), catchAsync(folders.createFolder));
 
 router.route('/deletefolder')
-    .put(validateUserSignin,isLoggedIn,catchAsync(folders.deleteFolder));
+    .put(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(folders.deleteFolder));
 
 module.exports = router;

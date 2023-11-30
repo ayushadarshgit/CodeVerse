@@ -5,9 +5,9 @@ const { validateUserSignin, isLoggedIn, validateMessage } = require("../middlewa
 const catchAsync = require("../utils/catchAsync");
 
 router.route("/sendmessage")
-    .post(validateUserSignin,isLoggedIn,validateMessage,catchAsync(message.sendMessage));
+    .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(validateMessage),catchAsync(message.sendMessage));
 
 router.route("/allmessage")
-    .get(validateUserSignin,isLoggedIn,catchAsync(message.allMessages));
+    .get(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(message.allMessages));
 
 module.exports = router;

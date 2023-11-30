@@ -54,11 +54,11 @@ module.exports.deleteFolder = async (req, res) => {
     if(!rootId){
         throw new ExpressError("Select the folder from the existing folder to be deleted",400);
     }
-    if(f.owner !== req.user){
-        throw new ExpressError("You are not the owner of the folder you want to delete",400);
-    }
     if (f.isdefaultfolder) {
         throw new ExpressError("You cannot delete the root folder", 400);
+    }
+    if(f.owner !== req.user){
+        throw new ExpressError("You are not the owner of the folder you want to delete",400);
     }
     await Folder.findByIdAndUpdate(rootId, {
         $pull: { folders: folderId }
