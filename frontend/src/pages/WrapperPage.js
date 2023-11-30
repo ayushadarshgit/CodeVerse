@@ -5,6 +5,7 @@ import Homepage from './Homepage'
 import Compiler from './Compiler'
 import Editor from './Editor'
 import Messanger from './Messanger'
+import Login from './Login'
 
 export default function WrapperPage({component}) {
   return (
@@ -14,6 +15,7 @@ export default function WrapperPage({component}) {
       {component==="compiler" && <Compiler/>}
       {component==="filemanager" && <Editor/>}
       {component==="messages" && <Messanger/>}
+      {component==="login" && <Login/>}
     </Box>
   )
 }
