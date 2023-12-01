@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import WrapperPage from './pages/WrapperPage';
+import GooglLoginSuccess from './pages/GooglLoginSuccess';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route exact path='/editor' element={<WrapperPage component="filemanager" />} />
         <Route exact path='/messanger' element={<WrapperPage component="messages" />} />
         <Route exact path='/login' element={<WrapperPage component="login" />}/>
+        <Route exact path='/googlelogin' element={<GooglLoginSuccess />} />
       </Routes>
     </BrowserRouter>
   );

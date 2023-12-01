@@ -1,5 +1,5 @@
-import { Avatar, Badge, Box, IconButton, Tooltip, tooltipClasses } from '@mui/material'
-import React from 'react'
+import { Avatar, Badge, Box, IconButton, Menu, MenuItem, Tooltip, tooltipClasses } from '@mui/material'
+import React, { useState } from 'react'
 import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import MessageIcon from '@mui/icons-material/Message';
@@ -22,8 +22,17 @@ export default function SideNav({ highlight }) {
     const iconStyle = { color: "#fff", fontSize: "40px", cursor: "pointer" };
     const navigate = useNavigate();
 
-    const handleClick = (u)=>{
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleUserClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleUserClose = () => {
+        setAnchorEl(null);
+    };
+    const handleClick = (u) => {
         navigate(u);
+        setAnchorEl(null)
     }
     return (
         <Box
@@ -46,29 +55,29 @@ export default function SideNav({ highlight }) {
                     flexDirection: "column"
                 }}
             >
-                <Box borderLeft={highlight==="home" ? "3px solid blue" : "none"} backgroundColor={highlight==="home" ? "#333" : "none"}>
-                    <IconButton onClick={()=>handleClick("/")}>
+                <Box borderLeft={highlight === "home" ? "3px solid blue" : "none"} backgroundColor={highlight === "home" ? "#333" : "none"}>
+                    <IconButton onClick={() => handleClick("/")}>
                         <BootstrapTooltip title="Home Page" placement="right" arrow>
                             <Avatar sx={{ height: "50px", width: "50px", cursor: "pointer" }} alt="Cindy Baker" src="../icon_circle.png" />
                         </BootstrapTooltip>
                     </IconButton>
                 </Box>
-                <Box borderLeft={highlight==="compiler" ? "3px solid blue" : "none"} backgroundColor={highlight==="compiler" ? "#333" : "none"}>
-                    <IconButton onClick={()=>handleClick("/compiler")}>
+                <Box borderLeft={highlight === "compiler" ? "3px solid blue" : "none"} backgroundColor={highlight === "compiler" ? "#333" : "none"}>
+                    <IconButton onClick={() => handleClick("/compiler")}>
                         <BootstrapTooltip title="Compiler" placement="right">
                             <PlayCircleOutlinedIcon sx={iconStyle} />
                         </BootstrapTooltip>
                     </IconButton>
                 </Box>
-                <Box  borderLeft={highlight==="filemanager" ? "3px solid blue" : "none"} backgroundColor={highlight==="filemanager" ? "#333" : "none"}>
-                    <IconButton onClick={()=>handleClick("/editor")}>
+                <Box borderLeft={highlight === "filemanager" ? "3px solid blue" : "none"} backgroundColor={highlight === "filemanager" ? "#333" : "none"}>
+                    <IconButton onClick={() => handleClick("/editor")}>
                         <BootstrapTooltip title="Projects" placement="right">
                             <FolderSharedIcon sx={iconStyle} />
                         </BootstrapTooltip>
                     </IconButton>
                 </Box>
-                <Box  borderLeft={highlight==="messages" ? "3px solid blue" : "none"} backgroundColor={highlight==="messages" ? "#333" : "none"}>
-                    <IconButton onClick={()=>handleClick("/messanger")}>
+                <Box borderLeft={highlight === "messages" ? "3px solid blue" : "none"} backgroundColor={highlight === "messages" ? "#333" : "none"}>
+                    <IconButton onClick={() => handleClick("/messanger")}>
                         <BootstrapTooltip title="Messages" placement="right">
                             <MessageIcon sx={iconStyle} />
                         </BootstrapTooltip>
@@ -92,9 +101,33 @@ export default function SideNav({ highlight }) {
                         </BootstrapTooltip>
                     </Badge>
                 </IconButton>
-                <IconButton>
+                <IconButton
+                    id='nav-positioned-button'
+                    aria-controls={open ? 'nav-positioned-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                    onClick={handleUserClick}
+                >
                     <Avatar sx={{ bgcolor: "#FECDA6", height: "50px", width: "50px", cursor: "pointer" }}>N</Avatar>
                 </IconButton>
+                <Menu
+                    id="nav-positioned-menu"
+                    aria-labelledby="nav-positioned-button"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleUserClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                >
+                    <MenuItem onClick={handleUserClose}>My account</MenuItem>
+                    <MenuItem onClick={() => handleClick("/login")}>Login</MenuItem>
+                </Menu>
             </Box>
         </Box>
     )

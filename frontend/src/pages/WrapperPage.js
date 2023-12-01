@@ -8,6 +8,7 @@ import Messanger from './Messanger'
 import Login from './Login'
 
 export default function WrapperPage({component}) {
+  
   return (
     <Box sx={{display: "flex",justifyContent: "space-between",alignItems: "center",height: "100vh",width: "100%"}}>
       <SideNav highlight={component} />

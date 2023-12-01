@@ -8,11 +8,12 @@ module.exports.loginSuccess = async (req, res) => {
     const token = jwt.sign({ username: searchedUser.email }, JWTSecret, { expiresIn: '7d' });
     searchedUser.lastToken = token;
     await searchedUser.save();
-    res.send(token);
+    // res.send(token);
+    res.redirect(`http://localhost:3000/googlelogin?token=${token}`)
 }
 
 module.exports.loginFail = (req, res) => {
-    res.send("An Error occured");
+    res.redirect(`http://localhost:3000/googlelogin?token=${"someerroroccured"}`)
 }
 module.exports.redirect = (req, res) => {
     return res.send(req.user);
