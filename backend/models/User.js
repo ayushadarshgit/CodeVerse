@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     name: {
-        type: String,
+        type: String
     },
     email: {
-        type: String,
-        unique: true
+        type: String
     },
     password: {
-        type: String,
+        type: String
     },
     isEmailVerified: {
         type: Boolean,
@@ -19,24 +18,16 @@ const userSchema = new Schema({
     googleId: {
         type: String
     },
-    photo: {
-        type: Schema.Types.ObjectId,
-        ref: "Image"
-    },
-    isCloudinary :{
-        type: Boolean
-    },
     defaultfolder: {
         type: Schema.Types.ObjectId,
-        ref: "Folder",
-        required: true,
-        unique: true
+        ref: "Folder"
     },
     lastToken: {
         type: String
     }
 },{
     timestamps: true
-})
+});
+
 
 module.exports = mongoose.model("User",userSchema);

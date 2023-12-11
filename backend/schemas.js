@@ -9,8 +9,9 @@ const userSchema = Joi.object({
             .pattern(new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
             .required(),
         password: Joi.string()
-            .pattern(new RegExp("^(?=[A-Za-z\d@$!%*?&])[^@$!%*?&]*[A-Za-z\d@$!%*?&]{6,}$"))
-            .required()
+            .pattern(new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$"))
+            .required(),
+        image: Joi.any()
     }).required()
 });
 
@@ -68,7 +69,7 @@ const userLogin = Joi.object({
             .pattern(new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
             .required(),
         password: Joi.string()
-            .pattern(new RegExp("^(?=[A-Za-z\d@$!%*?&])[^@$!%*?&]*[A-Za-z\d@$!%*?&]{6,}$"))
+            .pattern(new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$"))
             .required()
     }).required()
 })

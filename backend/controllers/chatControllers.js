@@ -2,7 +2,6 @@ const ExpressError = require("../utils/ExpressError");
 const Chat = require("../models/Chat");
 const User = require("../models/User");
 const Code = require("../models/Code");
-const Image = require("../models/Image");
 
 module.exports.getChat = async (req, res) => {
     const { userId } = req.body;
@@ -32,15 +31,6 @@ module.exports.getChat = async (req, res) => {
                 select: "code title language"
             })
         }
-        isChat = await Image.populate(isChat, {
-            path: "users.photo"
-        })
-        isChat.users = await Promise.all(isChat.users.map(async (user) => {
-            const ch = Image.populate(user, {
-                path: "user.photo"
-            })
-            return ch;
-        }));
         return res.status(200).json({ success: true, chat: isChat });
     }
     try {
@@ -48,7 +38,6 @@ module.exports.getChat = async (req, res) => {
         chatData.chatname = "sender";
         chatData.isgroupchat = false;
         chatData.users = [req.user._id, userId];
-        chatData.isCloudinary = false;
         await chatData.save();
         return res.status(200).json({ status: true, chat: chatData });
     } catch (error) {
@@ -62,7 +51,6 @@ module.exports.fetchChats = async (req, res) => {
             .populate("users", "-password")
             .populate("admin", "-password")
             .populate("latestMessage")
-            .populate("icon")
             .sort({ updatedAt: -1 });
         chats = await User.populate(chats, {
             path: "latestMessage.sender",
@@ -75,15 +63,6 @@ module.exports.fetchChats = async (req, res) => {
                     select: "code title language"
                 });
                 return popChat;
-            }
-            return chat;
-        }));
-        chats = await Promise.all(chats.map(async (chat) => {
-            if (!chat.isgroupchat) {
-                const ch = Image.populate(chat, {
-                    path: "users.photo"
-                })
-                return ch;
             }
             return chat;
         }));
@@ -102,22 +81,10 @@ module.exports.createGroupChat = async (req, res) => {
         newChat.users = users;
         newChat.isgroupchat = true;
         newChat.admin = req.user._id;
-        if (req.file) {
-            const image = new Image({
-                url: req.file.path,
-                filename: req.file.filename
-            });
-            await image.save();
-            newChat.icon = image;
-            newChat.isCloudinary = true;
-        } else {
-            newChat.isCloudinary = false;
-        }
         await newChat.save();
         const fullGroupChat = await Chat.findById(newChat._id)
             .populate("users", "-password")
-            .populate("admin", "-password")
-            .populate("icon");
+            .populate("admin", "-password");
         return res.status(200).json({ success: true, chat: fullGroupChat })
     } catch (error) {
         throw new ExpressError(error.message, 400);
@@ -139,8 +106,7 @@ module.exports.renameGroup = async (req, res) => {
         await chat.save();
         const renamedChat = await Chat.findById(chat._id)
             .populate("users", "-password")
-            .populate("admin", "-password")
-            .populate("icon");
+            .populate("admin", "-password");
         return res.status(200).json({ success: true, chat: renamedChat });
     } catch (error) {
         throw new ExpressError(error.message, 400);
@@ -166,8 +132,7 @@ module.exports.addToGroup = async (req, res) => {
         await chat.save();
         const updatedChat = await Chat.findById(chat._id)
             .populate("admin", "-password")
-            .populate("users", "-password")
-            .populate("icon");
+            .populate("users", "-password");
         return res.status(200).json({ success: true, chat: updatedChat });
     } catch (error) {
         throw new ExpressError(error.message, 400);
@@ -191,8 +156,7 @@ module.exports.removeFromGroup = async (req, res) => {
             new: true
         })
             .populate("users", "-password")
-            .populate("admin", "-password")
-            .populate("icon");
+            .populate("admin", "-password");
         return res.status(400).json({ success: true, chat: removed });
     } catch (error) {
         throw new ExpressError(error.message, 400);
@@ -201,27 +165,13 @@ module.exports.removeFromGroup = async (req, res) => {
 
 module.exports.updateIcon = async (req, res) => {
     const { chatId } = req.body;
-    const chat = await Chat.findById(chatId)
-        .populate("icon");
+    const chat = await Chat.findById(chatId);
     if (chat.isCloudinary) {
         await cloudinary.uploader.destroy(chat.icon.filename);
-    }
-    if (req.file) {
-        const image = new Image({
-            url: req.file.path,
-            filename: req.file.filename
-        });
-        await image.save();
-        chat.icon = image;
-        chat.isCloudinary = true;
-    } else {
-        chat.isCloudinary = false;
-        chat.icon = null;
     }
     await chat.save();
     const updatedChat = await Chat.findById(chat._id)
         .populate("admin", "-password")
-        .populate("users", "-password")
-        .populate("icon");
+        .populate("users", "-password");
     return res.status(200).json({ success: true, chat: updatedChat });
 }

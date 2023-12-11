@@ -32,24 +32,22 @@ passport.use(new GoogleStrategy({
         } else {
             try {
                 const createdFolder = new Folder();
-                createdFolder.foldername = "root"
+                createdFolder.foldername = "root";
                 createdFolder.isdefaultfolder = true;
                 await createdFolder.save();
 
-                const newUser = new User();
-                newUser.email = profile._json.email;
-                newUser.googleId = profile.id;
-                newUser.name = profile._json.name;
-                newUser.password = "";
-                newUser.isEmailVerified = true;
-                newUser.isPhoneVerified = false;
-                newUser.phoneNumber = "";
-                newUser.isCloudinary = false;
-                newUser.defaultfolder = createdFolder;
-                await newUser.save();
-                done(null, newUser);
+                const createdUser = new User();
+                createdUser.name = profile._json.name;
+                createdUser.email = profile._json.email;
+                createdUser.isEmailVerified = true;
+                createdUser.googleId = profile.id;
+                createdUser.isCloudinary = false;
+                createdUser.defaultfolder = createdFolder;
+                await createdUser.save();
+                done(null, createdUser);
             } catch (error) {
-                throw new ExpressError("Error Creating The Object", 200);
+                console.log(error);
+                throw new ExpressError("Error Creating new User",400);
             }
         }
     }

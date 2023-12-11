@@ -1,4 +1,4 @@
-import { Button, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Button, IconButton, InputAdornment, Snackbar, Stack, TextField, Typography } from '@mui/material'
 import React, { useRef, useState } from 'react'
 import LoginIcon from '@mui/icons-material/Login';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
@@ -6,12 +6,53 @@ import GoogleIcon from '@mui/icons-material/Google';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { loginGoogle } from "../Config/LoginControllers"
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { useDispatch } from 'react-redux';
+import { login } from '../features/login/loginSlice';
+import { signUpUser } from '../Config/SignUpControllers';
 
 export default function SignupComponent({ handleClick }) {
+    const nameRegex = new RegExp("^[a-zA-Z]+(?:[a-zA-Z]+)*$");
+    const emailRegex = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+[a-zA-Z]{2,}$");
+    const passwordRegex = new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$");
+
     const [showSignUpPassword, setShowSignUpPassword] = useState(true);
     const [showSignUpConfirmPassword, setShowSignUpConfirmPassword] = useState(true);
     const fileInputRef = useRef(null);
     const [dp, setDp] = useState();
+
+    const [loading, setLoading] = useState(false);
+
+    const [confirmPassword,setConfirmPassword] = useState("");
+
+    const [user, setUser] = useState({
+        name: "",
+        email: "",
+        password: ""
+    })
+
+    const [snack, setSnack] = useState({
+        show: false,
+        message: "",
+        severity: "success"
+    })
+
+    const dispatch = useDispatch();
+
+    const handleSnackClose = () => {
+        setSnack({
+            ...snack,
+            show: false
+        })
+    }
+
+    const loginFuction = (user) => {
+        dispatch(login({ user: user }));
+    }
+
+    const handleInputChange = (evt) => {
+        setUser({ ...user, [evt.target.name]: evt.target.value });
+    }
 
     const handleButtonClick = () => {
         if (fileInputRef.current) {
@@ -21,9 +62,54 @@ export default function SignupComponent({ handleClick }) {
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
-        console.log('Selected File:', selectedFile);
         setDp(selectedFile)
     };
+
+    const handleSignUp = async () => {
+        setLoading(true);
+        if (!nameRegex.test(user.name)) {
+            setSnack({
+                show: true,
+                message: "The name should have atleast on character and can not contain numbers and special characters",
+                severity: "error"
+            })
+        } else if (!emailRegex.test(user.email)) {
+            setSnack({
+                show: true,
+                message: "The Entered Email is not valid",
+                severity: "error"
+            })
+        } else if (!passwordRegex.test(user.password)) {
+            setSnack({
+                show: true,
+                message: "Their must be one Uppercase letter, 1 special character and atleast 6 characters in the password, also their show be not spaces. Also it can not end with special characters",
+                severity: "error"
+            })
+        } else if (user.password !== confirmPassword) {
+            setSnack({
+                show: true,
+                message: "Password and confirm password must match..",
+                severity: "error"
+            })
+        } else {
+            const res = await signUpUser({ user: user, loginFuction: loginFuction,image: dp });
+            if (res.success) {
+                setSnack({
+                    show: true,
+                    message: `Welcome, ${res.username} to Codeverse`,
+                    severity: "success"
+                })
+            } else {
+                setSnack({
+                    show: true,
+                    message: res.message,
+                    severity: "error"
+                })
+            }
+        }
+        setLoading(false);
+    }
+
     return (
         <Stack
             sx={{
@@ -44,6 +130,9 @@ export default function SignupComponent({ handleClick }) {
                 <TextField
                     required
                     label="Name "
+                    name='name'
+                    value={user.name}
+                    onChange={handleInputChange}
                     color='warning'
                     variant='filled'
                     InputLabelProps={{
@@ -76,6 +165,9 @@ export default function SignupComponent({ handleClick }) {
                     required
                     label="Email address"
                     color='warning'
+                    value={user.email}
+                    name='email'
+                    onChange={handleInputChange}
                     variant='filled'
                     InputLabelProps={{
                         style: {
@@ -107,6 +199,9 @@ export default function SignupComponent({ handleClick }) {
                     required
                     label="Password"
                     color='warning'
+                    name='password'
+                    onChange={handleInputChange}
+                    value={user.password}
                     type={showSignUpPassword ? 'password' : 'text'}
                     variant='filled'
                     InputLabelProps={{
@@ -148,6 +243,9 @@ export default function SignupComponent({ handleClick }) {
                     color='warning'
                     type={showSignUpConfirmPassword ? 'password' : 'text'}
                     variant='filled'
+                    name='confirmPassword'
+                    value={confirmPassword}
+                    onChange={(evt)=>setConfirmPassword(evt.target.value)}
                     InputLabelProps={{
                         style: {
                             color: '#fff',
@@ -191,7 +289,7 @@ export default function SignupComponent({ handleClick }) {
                     style={{ display: 'none' }}
                     onChange={handleFileChange}
                 />
-                <Button onClick={handleButtonClick} variant='contained' color='secondary' sx={{ width: "30%" }}>Upload Dp</Button>
+                <Button onClick={handleButtonClick} startIcon={<UploadFileIcon />} variant='contained' color='secondary' sx={{ width: "30%" }}>Upload Dp</Button>
                 <Typography sx={{ width: "50%", color: "#fff" }}>
                     {dp ? dp.name : ""}
                 </Typography>
@@ -211,6 +309,8 @@ export default function SignupComponent({ handleClick }) {
                         fontSize: "larger"
                     }}
                     startIcon={<FiberNewIcon />}
+                    onClick={handleSignUp}
+                    disabled={loading}
                 >
                     Sign Up
                 </Button>
@@ -253,9 +353,17 @@ export default function SignupComponent({ handleClick }) {
                     startIcon={<GoogleIcon />}
                     onClick={loginGoogle}
                 >
-                    Sign Up using Google
+                    Continue using Google
                 </Button>
             </Stack>
+            <Snackbar
+                open={snack.show}
+                autoHideDuration={3000}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                onClose={handleSnackClose}
+            >
+                <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ maxWidth: "400px" }}>{snack.message}</Alert>
+            </Snackbar>
         </Stack>
     )
 }

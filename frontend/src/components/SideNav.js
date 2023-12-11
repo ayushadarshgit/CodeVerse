@@ -6,6 +6,8 @@ import MessageIcon from '@mui/icons-material/Message';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../features/login/loginSlice';
 
 const BootstrapTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -21,6 +23,10 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
 export default function SideNav({ highlight }) {
     const iconStyle = { color: "#fff", fontSize: "40px", cursor: "pointer" };
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const isLoggedIn = useSelector(store => store.isLoggedIn);
+    const user = useSelector(state => state.user);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -33,6 +39,33 @@ export default function SideNav({ highlight }) {
     const handleClick = (u) => {
         navigate(u);
         setAnchorEl(null)
+    }
+    const handleLogout = () => {
+        dispatch(logout());
+    }
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
+        for (i = 0; i < string.length; i += 1) {
+            hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        let color = "#";
+
+        for (i = 0; i < 3; i += 1) {
+            const value = (hash >> (i * 8)) & 0xff;
+            color += `00${value.toString(16)}`.slice(-2);
+        }
+
+        return color;
+    }
+    function stringAvatar(name) {
+        return {
+            sx: {
+                bgcolor: stringToColor(name),
+            },
+            children: `${name.split(" ")[0][0]}`,
+        };
     }
     return (
         <Box
@@ -108,7 +141,20 @@ export default function SideNav({ highlight }) {
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleUserClick}
                 >
-                    <Avatar sx={{ bgcolor: "#FECDA6", height: "50px", width: "50px", cursor: "pointer" }}>N</Avatar>
+                    {isLoggedIn ? (
+                        <Avatar
+                            id="avatar-button"
+                            style={{ cursor: "pointer" }}
+                            {...stringAvatar(user.name)}
+                        />
+                    ) : (
+                        <Avatar
+                            alt="U"
+                            id="avatar-button"
+                            style={{ cursor: "pointer" }}
+                            src="https://st4.depositphotos.com/9998432/24428/v/450/depositphotos_244284796-stock-illustration-person-gray-photo-placeholder-man.jpg"
+                        />
+                    )}
                 </IconButton>
                 <Menu
                     id="nav-positioned-menu"
@@ -126,7 +172,9 @@ export default function SideNav({ highlight }) {
                     }}
                 >
                     <MenuItem onClick={handleUserClose}>My account</MenuItem>
-                    <MenuItem onClick={() => handleClick("/login")}>Login</MenuItem>
+                    {!isLoggedIn ?
+                        <MenuItem onClick={() => handleClick("/login")}>Login</MenuItem> :
+                        <MenuItem onClick={handleLogout}>Logout</MenuItem>}
                 </Menu>
             </Box>
         </Box>

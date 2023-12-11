@@ -4,7 +4,6 @@ const ExpressError = require("../utils/ExpressError");
 
 const User = require("../models/User");
 const Folder = require("../models/Folder");
-const Image = require("../models/Image");
 
 const JWTSecret = process.env.JWTSECRET;
 
@@ -25,7 +24,7 @@ module.exports.loginUser = async (req, res) => {
                 return res.json({ success: true, token: token, user: searchedUser });
             }
         } catch (error) {
-            new ExpressError("Password Matching Error", 400);
+            throw new ExpressError("Username and password not matching", 400);
         }
     }
 }
@@ -34,7 +33,7 @@ module.exports.signInUser = async (req, res) => {
     try {
         const { token } = req.body;
         const decoded = jwt.verify(token, JWTSecret);
-        const userToLogin = await User.findOne({ email: decoded.username });
+        const userToLogin = await User.findOne({ email: decoded.username }, "-password");
         if (!userToLogin) {
             throw new ExpressError("No user found", 400);
         }
@@ -60,7 +59,6 @@ module.exports.signUpUser = async (req, res) => {
         if (u) {
             throw new ExpressError("Email address Already exists", 400);
         }
-
         const newUser = new User(req.body.user);
 
         const p = await Bcrypt.hashPassword(password);
@@ -70,30 +68,15 @@ module.exports.signUpUser = async (req, res) => {
 
         await createdFolder.save();
 
-        
-        let image = req.file;
-        if (image) {
-            image = new Image({
-                url: req.file.path,
-                filename: req.file.filename
-            });
-            await image.save();
-            newUser.isCloudinary = true;
-        }else{
-            newUser.isCloudinary = false;
-        }
-
         newUser.password = p;
         newUser.defaultfolder = createdFolder;
-        if (req.file) {
-            newUser.photo = image
-        }
         newUser.isEmailVerified = false;
         const token = jwt.sign({ username: newUser.email }, JWTSecret, { expiresIn: '7d' });
         newUser.lastToken = token;
         await newUser.save();
         return res.json({ success: true, token: token, user: newUser });
     } catch (error) {
+        console.log(error);
         throw new ExpressError(error);
     }
 }

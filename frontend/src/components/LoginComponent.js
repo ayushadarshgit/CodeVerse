@@ -1,13 +1,88 @@
-import { Button, IconButton, InputAdornment, Stack, TextField } from '@mui/material'
+import { Alert, Button, IconButton, InputAdornment, Snackbar, Stack, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import LoginIcon from '@mui/icons-material/Login';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
 import GoogleIcon from '@mui/icons-material/Google';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { loginUser, loginGoogle } from '../Config/LoginControllers';
+import { useDispatch } from 'react-redux';
+import { login } from '../features/login/loginSlice';
+import { useNavigate } from 'react-router-dom';
 
-export default function LoginComponent({handleClick}) {
-    const [showLoginPassword,setShowLoginPassword] = useState(true);
+
+export default function LoginComponent({ handleClick }) {
+
+    const navigate = useNavigate();
+
+    const usernameRegex = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+[a-zA-Z]{2,}$");
+    const passwordRegex = new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$");
+
+    const [showLoginPassword, setShowLoginPassword] = useState(true);
+    const [loading,setLoading] = useState(false);
+
+    const [snack, setSnack] = useState({
+        show: false,
+        message: "",
+        severity: "success"
+    })
+
+    const [user, setUser] = useState({
+        username: "",
+        password: ""
+    })
+
+    const dispatch = useDispatch();
+
+    const loginFuction = (user) => {
+        dispatch(login({user: user }));
+    }
+
+    const handleChange = (evt) => {
+        setUser({ ...user, [evt.target.name]: evt.target.value })
+    }
+
+    const handleSnackClose = () => {
+        setSnack({
+            ...snack,
+            show: false
+        })
+    }
+
+    const handleLogin = async () => {
+        setLoading(true);
+        if (usernameRegex.test(user.username) && passwordRegex.test(user.password)) {
+            const res = await loginUser({ user: user, loginFuction: loginFuction });
+            if (res.success) {
+                setSnack({
+                    show: true,
+                    message: `Welcome Back ${res.username}`,
+                    severity: "success"
+                })
+                navigate('/');
+            } else {
+                setSnack({
+                    show: true,
+                    message: res.message,
+                    severity: "error"
+                })
+            }
+        } else if (usernameRegex.test(user.username)) {
+            setSnack({
+                show: true,
+                message: `Their must be one Uppercase letter, 1 special character and atleast 6 characters in the password, also their should not be any spaces`,
+                severity: "error"
+            })
+        } else {
+            setSnack({
+                show: true,
+                message: `The Email provided by you is not correct.`,
+                severity: "error"
+            })
+        }
+        setLoading(false);
+    }
+
     return (
         <Stack
             sx={{
@@ -30,6 +105,9 @@ export default function LoginComponent({handleClick}) {
                     label="Email address"
                     color='warning'
                     variant='filled'
+                    value={user.username}
+                    onChange={handleChange}
+                    name='username'
                     InputLabelProps={{
                         style: {
                             color: '#fff',
@@ -62,6 +140,9 @@ export default function LoginComponent({handleClick}) {
                     color='warning'
                     type={showLoginPassword ? 'password' : 'text'}
                     variant='filled'
+                    name='password'
+                    value={user.password}
+                    onChange={handleChange}
                     InputLabelProps={{
                         style: {
                             color: '#fff',
@@ -101,6 +182,8 @@ export default function LoginComponent({handleClick}) {
                         fontSize: "larger"
                     }}
                     startIcon={<LoginIcon />}
+                    onClick={handleLogin}
+                    disabled={loading}
                 >
                     Log In
                 </Button>
@@ -138,10 +221,19 @@ export default function LoginComponent({handleClick}) {
                         fontSize: "larger"
                     }}
                     startIcon={<GoogleIcon />}
+                    onClick={loginGoogle}
                 >
-                    Login using Google
+                    Continue using Google
                 </Button>
             </Stack>
+            <Snackbar
+                open={snack.show}
+                autoHideDuration={3000}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                onClose={handleSnackClose}
+            >
+                <Alert severity={snack.severity} onClose={handleSnackClose} sx={{maxWidth: "400px"}}>{snack.message}</Alert>
+            </Snackbar>
         </Stack>
     )
 }

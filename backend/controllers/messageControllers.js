@@ -1,7 +1,6 @@
 const Message = require("../models/Message");
 const Code = require("../models/Code");
 const Chat = require("../models/Chat");
-const Image = require("../models/Image");
 const ExpressError = require("../utils/ExpressError");
 
 module.exports.sendMessage = async (req, res) => {
@@ -43,12 +42,6 @@ module.exports.allMessages = async (req, res) => {
         .populate("sender")
         .populate("readBy");
     messages = await Promise.all(messages.map(async (mes) => {
-        mes.sender = await Image.populate(mes, {
-            path: "sender.photo"
-        })
-        mes.readBy = await Image.populate(mes, {
-            path: "readBy.photo"
-        })
         if (mes.readBy.indexOf(req.user._id) === -1) {
             mes.readBy.push(req.user._id);
         }
