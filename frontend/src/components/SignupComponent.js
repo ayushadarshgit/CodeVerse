@@ -1,29 +1,28 @@
-import { Alert, Button, IconButton, InputAdornment, Snackbar, Stack, TextField, Typography } from '@mui/material'
-import React, { useRef, useState } from 'react'
+import { Button, IconButton, InputAdornment, Stack, TextField } from '@mui/material'
+import React, { useState } from 'react'
 import LoginIcon from '@mui/icons-material/Login';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
 import GoogleIcon from '@mui/icons-material/Google';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { loginGoogle } from "../Config/LoginControllers"
-import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useDispatch } from 'react-redux';
 import { login } from '../features/login/loginSlice';
 import { signUpUser } from '../Config/SignUpControllers';
+import { showSnack } from '../features/login/loginSlice';
+import SnackBar from './SnackBar';
 
 export default function SignupComponent({ handleClick }) {
-    const nameRegex = new RegExp("^[a-zA-Z]+(?:[a-zA-Z]+)*$");
+    const nameRegex = new RegExp("^[a-zA-z][a-zA-Z\\s]*[a-zA-Z]$");
     const emailRegex = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+[a-zA-Z]{2,}$");
     const passwordRegex = new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$");
 
     const [showSignUpPassword, setShowSignUpPassword] = useState(true);
     const [showSignUpConfirmPassword, setShowSignUpConfirmPassword] = useState(true);
-    const fileInputRef = useRef(null);
-    const [dp, setDp] = useState();
 
     const [loading, setLoading] = useState(false);
 
-    const [confirmPassword,setConfirmPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     const [user, setUser] = useState({
         name: "",
@@ -31,20 +30,7 @@ export default function SignupComponent({ handleClick }) {
         password: ""
     })
 
-    const [snack, setSnack] = useState({
-        show: false,
-        message: "",
-        severity: "success"
-    })
-
     const dispatch = useDispatch();
-
-    const handleSnackClose = () => {
-        setSnack({
-            ...snack,
-            show: false
-        })
-    }
 
     const loginFuction = (user) => {
         dispatch(login({ user: user }));
@@ -54,59 +40,60 @@ export default function SignupComponent({ handleClick }) {
         setUser({ ...user, [evt.target.name]: evt.target.value });
     }
 
-    const handleButtonClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
-
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        setDp(selectedFile)
-    };
-
     const handleSignUp = async () => {
         setLoading(true);
         if (!nameRegex.test(user.name)) {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: "The name should have atleast on character and can not contain numbers and special characters",
-                severity: "error"
-            })
+                severity: "error",
+                vertical: "top",
+                horizontal: "right"
+            }))
         } else if (!emailRegex.test(user.email)) {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: "The Entered Email is not valid",
-                severity: "error"
-            })
+                severity: "error",
+                vertical: "top",
+                horizontal: "right"
+            }))
         } else if (!passwordRegex.test(user.password)) {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: "Their must be one Uppercase letter, 1 special character and atleast 6 characters in the password, also their show be not spaces. Also it can not end with special characters",
-                severity: "error"
-            })
+                severity: "error",
+                vertical: "top",
+                horizontal: "right"
+            }))
         } else if (user.password !== confirmPassword) {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: "Password and confirm password must match..",
-                severity: "error"
-            })
+                severity: "error",
+                vertical: "top",
+                horizontal: "right"
+            }))
         } else {
-            const res = await signUpUser({ user: user, loginFuction: loginFuction,image: dp });
+            const res = await signUpUser({ user: user, loginFuction: loginFuction });
             if (res.success) {
-                setSnack({
-                    show: true,
-                    message: `Welcome, ${res.username} to Codeverse`,
-                    severity: "success"
-                })
+                dispatch(showSnack({
+                    message: `Welcome, ${res.username} to Codeverse, Please verify your email To continue..`,
+                    severity: "success",
+                    vertical: "top",
+                    horizontal: "right"
+                }))
             } else {
-                setSnack({
-                    show: true,
+                dispatch(showSnack({
                     message: res.message,
-                    severity: "error"
-                })
+                    severity: "error",
+                    vertical: "top",
+                    horizontal: "right"
+                }))
             }
         }
+        setUser({
+            name: "",
+            email: "",
+            password: ""
+        });
+        setConfirmPassword("");
         setLoading(false);
     }
 
@@ -245,7 +232,7 @@ export default function SignupComponent({ handleClick }) {
                     variant='filled'
                     name='confirmPassword'
                     value={confirmPassword}
-                    onChange={(evt)=>setConfirmPassword(evt.target.value)}
+                    onChange={(evt) => setConfirmPassword(evt.target.value)}
                     InputLabelProps={{
                         style: {
                             color: '#fff',
@@ -270,29 +257,6 @@ export default function SignupComponent({ handleClick }) {
                         },
                     }}
                 />
-            </Stack>
-
-            <Stack
-                sx={{
-                    width: "70%",
-                    marginTop: "20px",
-                    border: "0.5px solid #555",
-                    height: "70px",
-                    justifyContent: "space-evenly",
-                    alignItems: "center",
-                    flexDirection: "row"
-                }}
-            >
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                />
-                <Button onClick={handleButtonClick} startIcon={<UploadFileIcon />} variant='contained' color='secondary' sx={{ width: "30%" }}>Upload Dp</Button>
-                <Typography sx={{ width: "50%", color: "#fff" }}>
-                    {dp ? dp.name : ""}
-                </Typography>
             </Stack>
 
             <Stack
@@ -356,14 +320,7 @@ export default function SignupComponent({ handleClick }) {
                     Continue using Google
                 </Button>
             </Stack>
-            <Snackbar
-                open={snack.show}
-                autoHideDuration={3000}
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                onClose={handleSnackClose}
-            >
-                <Alert severity={snack.severity} onClose={handleSnackClose} sx={{ maxWidth: "400px" }}>{snack.message}</Alert>
-            </Snackbar>
+            <SnackBar />
         </Stack>
     )
 }

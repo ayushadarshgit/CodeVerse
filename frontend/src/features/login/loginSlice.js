@@ -2,7 +2,12 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
     isLoggedIn: false,
-    user: undefined
+    user: undefined,
+    show: false,
+    message: "Test Snack",
+    severity: "warning",
+    vertical: "bottom",
+    horizontal: "left"
 }
 
 export const authSlice = createSlice({
@@ -10,17 +15,27 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state, actions) => {
-            console.log(actions.payload.user);
             state.isLoggedIn = true
             state.user = actions.payload.user
         },
         logout: (state) => {
             state.isLoggedIn = false
             state.user = undefined
+        },
+        showSnack: (state, actions) => {
+            state.show = true;
+            state.message = actions.payload.message
+            state.severity = actions.payload.severity
+            state.vertical =  actions.payload.vertical
+            state.horizontal =  actions.payload.horizontal
+        },
+        hideSnack: (state) => {
+            state.show = false
+            state.message = ""
         }
     }
 })
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, showSnack, hideSnack } = authSlice.actions;
 
 export default authSlice.reducer;

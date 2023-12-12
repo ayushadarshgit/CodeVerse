@@ -1,4 +1,4 @@
-import { Alert, Button, IconButton, InputAdornment, Snackbar, Stack, TextField } from '@mui/material'
+import { Button, IconButton, InputAdornment, Stack, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import LoginIcon from '@mui/icons-material/Login';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
@@ -7,8 +7,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { loginUser, loginGoogle } from '../Config/LoginControllers';
 import { useDispatch } from 'react-redux';
-import { login } from '../features/login/loginSlice';
+import { login, showSnack } from '../features/login/loginSlice';
 import { useNavigate } from 'react-router-dom';
+import SnackBar from './SnackBar';
 
 
 export default function LoginComponent({ handleClick }) {
@@ -19,13 +20,7 @@ export default function LoginComponent({ handleClick }) {
     const passwordRegex = new RegExp("^(?=[A-Za-z1-9@$!%*?&])[^@$!%*?&]*[A-Za-z1-9@$!%*?&]{1,}$");
 
     const [showLoginPassword, setShowLoginPassword] = useState(true);
-    const [loading,setLoading] = useState(false);
-
-    const [snack, setSnack] = useState({
-        show: false,
-        message: "",
-        severity: "success"
-    })
+    const [loading, setLoading] = useState(false);
 
     const [user, setUser] = useState({
         username: "",
@@ -35,18 +30,11 @@ export default function LoginComponent({ handleClick }) {
     const dispatch = useDispatch();
 
     const loginFuction = (user) => {
-        dispatch(login({user: user }));
+        dispatch(login({ user: user }));
     }
 
     const handleChange = (evt) => {
         setUser({ ...user, [evt.target.name]: evt.target.value })
-    }
-
-    const handleSnackClose = () => {
-        setSnack({
-            ...snack,
-            show: false
-        })
     }
 
     const handleLogin = async () => {
@@ -54,31 +42,27 @@ export default function LoginComponent({ handleClick }) {
         if (usernameRegex.test(user.username) && passwordRegex.test(user.password)) {
             const res = await loginUser({ user: user, loginFuction: loginFuction });
             if (res.success) {
-                setSnack({
-                    show: true,
+                dispatch(showSnack({
                     message: `Welcome Back ${res.username}`,
                     severity: "success"
-                })
+                }))
                 navigate('/');
             } else {
-                setSnack({
-                    show: true,
+                dispatch(showSnack({
                     message: res.message,
                     severity: "error"
-                })
+                }))
             }
         } else if (usernameRegex.test(user.username)) {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: `Their must be one Uppercase letter, 1 special character and atleast 6 characters in the password, also their should not be any spaces`,
                 severity: "error"
-            })
+            }))
         } else {
-            setSnack({
-                show: true,
+            dispatch(showSnack({
                 message: `The Email provided by you is not correct.`,
                 severity: "error"
-            })
+            }))
         }
         setLoading(false);
     }
@@ -226,14 +210,7 @@ export default function LoginComponent({ handleClick }) {
                     Continue using Google
                 </Button>
             </Stack>
-            <Snackbar
-                open={snack.show}
-                autoHideDuration={3000}
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                onClose={handleSnackClose}
-            >
-                <Alert severity={snack.severity} onClose={handleSnackClose} sx={{maxWidth: "400px"}}>{snack.message}</Alert>
-            </Snackbar>
+            <SnackBar />
         </Stack>
     )
 }

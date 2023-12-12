@@ -1,6 +1,7 @@
 import { Stack } from '@mui/material'
 import React from 'react'
 import CompilerTopBar from '../components/CompilerTopBar'
+import SnackBar from '../components/SnackBar'
 
 export default function Homepage() {
   return (
@@ -15,6 +16,7 @@ export default function Homepage() {
       }}
     >
       <CompilerTopBar text="( Home )" />
+      <SnackBar />
     </Stack>
   )
 }

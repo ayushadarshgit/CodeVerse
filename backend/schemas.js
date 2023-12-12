@@ -3,7 +3,7 @@ const Joi = require("joi");
 const userSchema = Joi.object({
     user: Joi.object({
         name: Joi.string()
-            .pattern(new RegExp("^[a-zA-Z]+(?:\s[a-zA-Z]+)*$"))
+            .pattern(new RegExp("^[a-zA-z][a-zA-Z\\s]*[a-zA-Z]$"))
             .required(),
         email: Joi.string()
             .pattern(new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { signin } from '../Config/LoginControllers';
 import { useDispatch } from 'react-redux';
-import { login } from "../features/login/loginSlice";
+import { login, showSnack } from "../features/login/loginSlice";
 
 export default function GooglLoginSuccess() {
     const location = useLocation();
@@ -11,7 +11,6 @@ export default function GooglLoginSuccess() {
     const dispatch = useDispatch();
 
     const loginFuction = (user) => {
-        console.log(user);
         dispatch(login({ user: user }));
     }
 
@@ -19,6 +18,10 @@ export default function GooglLoginSuccess() {
         const success = await signin(loginFuction);
 
         if (success) {
+            dispatch(showSnack({
+                message: `Welcome Back To Codeverse`,
+                severity: "success"
+            }))
             navigate('/')
         } else {
             navigate('/login')
