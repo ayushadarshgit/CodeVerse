@@ -37,8 +37,8 @@ module.exports.signInUser = async (req, res) => {
         if (!userToLogin) {
             throw new ExpressError("No user found", 400);
         }
-        if(userToLogin.lastToken !== token){
-            throw new ExpressError("Token given has been expired!",400);
+        if (userToLogin.lastToken !== token) {
+            throw new ExpressError("Token given has been expired!", 400);
         }
         return res.json({ success: true, decoded: decoded, user: userToLogin });
     } catch (error) {
@@ -79,4 +79,17 @@ module.exports.signUpUser = async (req, res) => {
         console.log(error);
         throw new ExpressError(error);
     }
+}
+
+module.exports.allUsers = async (req, res) => {
+    const keyword = req.query.search ? {
+        $or: [
+            { name: { $regex: req.query.search, $options: "i" } },
+            { email: { $regex: req.query.search, $options: "i" } }
+        ],
+    } :
+        {};
+
+    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } })
+    return res.status(200).json({ success: true, users: users });
 }

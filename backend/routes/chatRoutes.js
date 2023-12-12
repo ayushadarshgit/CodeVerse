@@ -5,24 +5,21 @@ const catchAsync = require("../utils/catchAsync");
 const router = require("express").Router();
 
 router.route('/getchat')
-    .post(validateUserSignin,isLoggedIn,catchAsync(chats.getChat));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(chats.getChat));
 
 router.route('/fetchchats')
-    .post(validateUserSignin,isLoggedIn,catchAsync(chats.fetchChats));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(chats.fetchChats));
 
 router.route('/creategroupchat')
-    .post(validateUserSignin,isLoggedIn,validateChat,catchAsync(chats.createGroupChat));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(validateChat), catchAsync(chats.createGroupChat));
 
 router.route('/renamegroup')
-    .post(validateUserSignin,isLoggedIn,catchAsync(chats.renameGroup));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(chats.renameGroup));
 
 router.route('/addtogroup')
-    .post(validateChat,isLoggedIn,catchAsync(chats.addToGroup));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(chats.addToGroup));
 
 router.route('/removefromgroup')
-    .post(validateUserSignin,isLoggedIn,catchAsync(chats.removeFromGroup));
-
-router.route('/updateicon')
-    .post(validateChat,isLoggedIn,catchAsync(chats.updateIcon));
+    .post(catchAsync(validateUserSignin), catchAsync(isLoggedIn), catchAsync(chats.removeFromGroup));
 
 module.exports = router;

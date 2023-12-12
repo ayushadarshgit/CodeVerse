@@ -7,7 +7,8 @@ const initialState = {
     message: "Test Snack",
     severity: "warning",
     vertical: "bottom",
-    horizontal: "left"
+    horizontal: "left",
+    chats: []
 }
 
 export const authSlice = createSlice({
@@ -26,16 +27,19 @@ export const authSlice = createSlice({
             state.show = true;
             state.message = actions.payload.message
             state.severity = actions.payload.severity
-            state.vertical =  actions.payload.vertical
-            state.horizontal =  actions.payload.horizontal
+            state.vertical = actions.payload.vertical
+            state.horizontal = actions.payload.horizontal
         },
         hideSnack: (state) => {
             state.show = false
             state.message = ""
+        },
+        setChats: (state, actions) => {
+            state.chats = actions.payload.chats
         }
     }
 })
 
-export const { login, logout, showSnack, hideSnack } = authSlice.actions;
+export const { login, logout, showSnack, hideSnack, setChats } = authSlice.actions;
 
 export default authSlice.reducer;

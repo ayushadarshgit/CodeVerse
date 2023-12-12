@@ -57,7 +57,7 @@ module.exports.fetchChats = async (req, res) => {
             select: "name email"
         });
         chats = await Promise.all(chats.map(async (chat) => {
-            if (chat.latestMessage.iscode) {
+            if (chat.latestMessage && chat.latestMessage.iscode) {
                 const popChat = await Code.populate(chat, {
                     path: "latestMessage.code",
                     select: "code title language"
@@ -161,17 +161,4 @@ module.exports.removeFromGroup = async (req, res) => {
     } catch (error) {
         throw new ExpressError(error.message, 400);
     }
-}
-
-module.exports.updateIcon = async (req, res) => {
-    const { chatId } = req.body;
-    const chat = await Chat.findById(chatId);
-    if (chat.isCloudinary) {
-        await cloudinary.uploader.destroy(chat.icon.filename);
-    }
-    await chat.save();
-    const updatedChat = await Chat.findById(chat._id)
-        .populate("admin", "-password")
-        .populate("users", "-password");
-    return res.status(200).json({ success: true, chat: updatedChat });
 }

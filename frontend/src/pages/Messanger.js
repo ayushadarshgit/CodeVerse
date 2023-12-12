@@ -1,10 +1,11 @@
-import { Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import React from 'react'
 import CompilerTopBar from '../components/CompilerTopBar'
+import MessangerMain from '../components/MessangerMain'
 
 export default function Messanger() {
   return (
-    <Stack
+    <Box
       sx={{
         width: "100%",
         height: "100%",
@@ -15,6 +16,7 @@ export default function Messanger() {
       }}
     >
       <CompilerTopBar text="( Messenger )" />
-    </Stack>
+      <MessangerMain />
+    </Box>
   )
 }
