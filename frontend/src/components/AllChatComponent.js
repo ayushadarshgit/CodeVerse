@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react'
 import ChatLoader from '../Loaders/ChatLoader';
 import { createNewChat, fetchChats, getOtherIndex } from '../Config/ChatControllers';
 import { useDispatch, useSelector } from "react-redux"
-import { setChats, showSnack } from '../features/login/loginSlice';
+import { selectChat, setChats, setMessagesLoaded, setMessagesLoading, setSelectedChatMessages, showSnack } from '../features/login/loginSlice';
 import SnackBar from "../components/SnackBar";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import { getAllUsers } from '../Config/UserControllers';
 import ShowChats from './ShowChats';
+import { getAllMessages } from '../Config/MessagesControllers';
 
 export default function AllChatComponent() {
   const [loading, setLoading] = useState(true);
@@ -24,8 +25,31 @@ export default function AllChatComponent() {
 
   const chats = useSelector(state => state.chats);
 
+  const selectedChat = useSelector(state => state.selectedChat);
+
   const getChatsFunction = (chats) => {
     dispatch(setChats({ chats: chats }))
+  }
+
+  const setMessagesLoadedFunction = () => {
+    dispatch(setMessagesLoaded());
+  }
+
+  const setShowSnackFunction = (message, severity) => {
+    dispatch(showSnack({
+      message: message,
+      severity: severity
+    }))
+  }
+
+  const setSelecetedChatMessagesFunction = (messages) => {
+    dispatch(setSelectedChatMessages({ messages: messages }));
+  }
+
+  const setSelectedChatFunction = (selectedChat) => {
+    dispatch(selectChat({ selectedChat: selectedChat }));
+    dispatch(setMessagesLoading());
+    getAllMessages(selectedChat._id, setMessagesLoadedFunction, setSelecetedChatMessagesFunction, setShowSnackFunction);
   }
 
   const fetchUsers = () => {
@@ -70,6 +94,7 @@ export default function AllChatComponent() {
   }
 
   useEffect(() => {
+    dispatch(selectChat({ selectedChat: null }));
     loadChats();
     // eslint-disable-next-line
   }, [])
@@ -78,20 +103,24 @@ export default function AllChatComponent() {
     <>
       {view ? <Stack
         sx={{
-          width: "25%",
+          width: { xs: "95%", lg: "25%" },
           height: "97%",
           backgroundColor: "#222",
           borderLeft: "1px solid #444",
           border: "1px solid #444",
+          borderRadius: "10px",
+          display: !selectedChat ? "flex" : {xs: "none", lg: "flex"}
         }}
       >
         <Stack
           sx={{
             width: "100%",
-            height: "70px",
+            height: "80px",
             backgroundColor: "#111",
             justifyContent: "space-evenly",
-            alignItems: "center"
+            alignItems: "center",
+            borderBottom: "1px solid #555",
+            borderRadius: "10px"
           }}
         >
           <Stack
@@ -151,7 +180,26 @@ export default function AllChatComponent() {
                 >
                   {chats.map(c => {
                     return <Stack sx={{ width: "100%", justifyContent: "center", alignItems: "center" }} key={c._id} >
-                      {!c.isgroupchat && <ShowChats name={c.users[getOtherIndex(c.users,user)].name} isSearched={false} lastMessage={c.latestMessage} />}
+                      {!c.isgroupchat ?
+                        <>
+                          <ShowChats
+                            id={c}
+                            name={c.users[getOtherIndex(c.users, user)].name}
+                            isSearched={false} lastMessage={c.latestMessage}
+                            handleClick={setSelectedChatFunction}
+                            users={c.users}
+                          />
+                        </>
+                        :
+                        <ShowChats
+                          name={c.chatname}
+                          isSearched={false}
+                          lastMessage={c.lastMessage}
+                          handleClick={setSelectedChatFunction}
+                          id={c}
+                          users={c.users}
+                        />
+                      }
                     </Stack>
                   })}
                 </Stack>
@@ -172,11 +220,12 @@ export default function AllChatComponent() {
       </Stack> : (
         <Stack
           sx={{
-            width: "25%",
+            width: { xs: "95%", lg: "25%" },
             height: "97%",
             backgroundColor: "#222",
             borderLeft: "1px solid #444",
             border: "1px solid #444",
+            borderRadius: "10px"
           }}
         >
           <Stack
@@ -185,7 +234,8 @@ export default function AllChatComponent() {
               height: "90px",
               backgroundColor: "#333",
               justifyContent: "space-evenly",
-              alignItems: "center"
+              alignItems: "center",
+              borderRadius: "10px"
             }}
           >
             <Stack
@@ -194,13 +244,15 @@ export default function AllChatComponent() {
                 justifyContent: "center",
                 alignItems: "center",
                 color: "#ddd",
-                fontSize: "xx-large"
+                fontSize: "xx-large",
+                borderRadius: "10px"
               }}
             >
               <Stack
                 sx={{
                   width: "95%",
-                  border: "1px solid #555"
+                  border: "1px solid #555",
+                  borderRadius: "10px"
                 }}
               >
                 <TextField
@@ -268,8 +320,21 @@ export default function AllChatComponent() {
                   }}
                 >
                   {profiles.map(p => {
-                    return <Stack sx={{ width: "100%", justifyContent: "center", alignItems: "center" }} key={p._id}>
-                      <ShowChats name={p.name} email={p.email} isSearched={true} handleClick={createChat} id={p._id} />
+                    return <Stack
+                      sx={{
+                        width: "100%",
+                        justifyContent: "center",
+                        alignItems: "center"
+                      }}
+                      key={p._id}
+                    >
+                      <ShowChats
+                        name={p.name}
+                        email={p.email}
+                        isSearched={true}
+                        handleClick={createChat}
+                        id={p._id}
+                      />
                     </Stack>
                   })}
                 </Stack>

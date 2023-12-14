@@ -26,6 +26,8 @@ module.exports.sendMessage = async (req, res) => {
         .populate("sender")
         .populate("code")
         .populate("readBy");
+    chat.latestMessage = newMessage;
+    await chat.save();
     if (!m) {
         throw new ExpressError("An Occured while sending the message", 400);
     }
@@ -34,20 +36,21 @@ module.exports.sendMessage = async (req, res) => {
 
 module.exports.allMessages = async (req, res) => {
     const { chatId } = req.body;
-    if(!chatId){
-        throw new ExpressError("You need to provide the chatId of the chat to send message",400);
+    if (!chatId) {
+        throw new ExpressError("You need to provide the chatId of the chat to view the messages", 400);
     }
     let messages = await Message.find({ chat: chatId })
         .populate("code")
         .populate("sender")
         .populate("readBy");
+    const m = messages;
     messages = await Promise.all(messages.map(async (mes) => {
-        if (mes.readBy.indexOf(req.user._id) === -1) {
+        if (!mes.readBy.some(user => user._id.toString() === req.user._id.toString())) {
             mes.readBy.push(req.user._id);
         }
         await mes.save();
         return mes;
     }))
 
-    return res.status(200).json({ success: true, messages: messages });
+    return res.status(200).json({ success: true, messages: m });
 }

@@ -8,7 +8,10 @@ const initialState = {
     severity: "warning",
     vertical: "bottom",
     horizontal: "left",
-    chats: []
+    chats: [],
+    selectedChat: null,
+    selectedChatMessages: [],
+    messagesLoading: false
 }
 
 export const authSlice = createSlice({
@@ -36,10 +39,38 @@ export const authSlice = createSlice({
         },
         setChats: (state, actions) => {
             state.chats = actions.payload.chats
+        },
+        selectChat: (state, actions) => {
+            state.selectedChat = actions.payload.selectedChat
+        },
+        setSelectedChatMessages: (state, actions) => {
+            state.selectedChatMessages = actions.payload.messages
+        },
+        setMessagesLoading: (state) => {
+            state.messagesLoading = true
+        },
+        setMessagesLoaded: (state) => {
+            state.messagesLoading = false
+        },
+        addMessage: (state, actions) => {
+            const m = state.selectedChatMessages
+            m.push(actions.payload.message)
+            state.selectedChatMessages = m
         }
     }
 })
 
-export const { login, logout, showSnack, hideSnack, setChats } = authSlice.actions;
+export const {
+    login,
+    logout,
+    setChats,
+    hideSnack,
+    showSnack,
+    selectChat,
+    addMessage,
+    setMessagesLoaded,
+    setMessagesLoading,
+    setSelectedChatMessages,
+} = authSlice.actions;
 
 export default authSlice.reducer;

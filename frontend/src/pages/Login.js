@@ -78,21 +78,29 @@ export default function Login() {
                         flexDirection: "row"
                     }}
                 >
-                    <img
-                        src={url}
-                        style={{
+                    <Stack
+                        sx={{
                             height: "100%",
-                            width: "40%",
-                            borderTopLeftRadius: "8px",
-                            borderBottomLeftRadius: "8px",
-                            border: "1px solid #ddd",
-                            borderRight: "none"
+                            width: {xs: "0%", lg:"40%"}
                         }}
-                        alt="" />
+                    >
+
+                        <img
+                            src={url}
+                            style={{
+                                height: "100%",
+                                width: "100%",
+                                borderTopLeftRadius: "8px",
+                                borderBottomLeftRadius: "8px",
+                                border: "1px solid #ddd",
+                                borderRight: "none"
+                            }}
+                            alt="" />
+                    </Stack>
 
                     <Stack
                         sx={{
-                            width: "60%",
+                            width: {xs: "100%", lg:"60%"},
                             height: "100%",
                             backgroundColor: "#333",
                             borderTopRightRadius: "8px",

@@ -43,13 +43,23 @@ const folderSchema = Joi.object({
 
 const messageSchema = Joi.object({
     message: Joi.object({
+        message: Joi.string()
+            .required(),
         chat: Joi.any()
             .required(),
-        sender: Joi.any()
-            .required(),
         iscode: Joi.boolean()
-            .required()
-    }).required()
+            .required(),
+        code: Joi.object({
+            code: Joi.string()
+                .required(),
+            language: Joi.string()
+                .required(),
+            title: Joi.string()
+                .required()
+        })
+    }).required(),
+    token: Joi.any()
+        .required()
 });
 
 const codeSchema = Joi.object({

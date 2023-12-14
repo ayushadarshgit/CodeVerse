@@ -8,6 +8,6 @@ router.route("/sendmessage")
     .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(validateMessage),catchAsync(message.sendMessage));
 
 router.route("/allmessage")
-    .get(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(message.allMessages));
+    .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(message.allMessages));
 
 module.exports = router;

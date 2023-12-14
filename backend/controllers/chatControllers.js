@@ -21,17 +21,7 @@ module.exports.getChat = async (req, res) => {
         .populate("users", "-password")
         .populate("latestMessage");
     if (isChat) {
-        isChat = await User.populate(isChat, {
-            path: "latestMessage.sender",
-            select: "name email"
-        });
-        if (isChat.latestMessage.iscode) {
-            isChat = await Code.populate(isChat, {
-                path: "latestMessage.code",
-                select: "code title language"
-            })
-        }
-        return res.status(200).json({ success: true, chat: isChat });
+        return res.status(200).json({ success: true });
     }
     try {
         const chatData = new Chat();
@@ -39,7 +29,7 @@ module.exports.getChat = async (req, res) => {
         chatData.isgroupchat = false;
         chatData.users = [req.user._id, userId];
         await chatData.save();
-        return res.status(200).json({ status: true, chat: chatData });
+        return res.status(200).json({ success: true, chat: chatData });
     } catch (error) {
         throw new ExpressError(error.message, 400);
     }
@@ -47,15 +37,21 @@ module.exports.getChat = async (req, res) => {
 
 module.exports.fetchChats = async (req, res) => {
     try {
-        let chats = Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+        let chats = await Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
             .populate("users", "-password")
             .populate("admin", "-password")
             .populate("latestMessage")
             .sort({ updatedAt: -1 });
-        chats = await User.populate(chats, {
-            path: "latestMessage.sender",
-            select: "name email"
-        });
+        chats = await Promise.all(chats.map(async (chat) => {
+            if(chat.latestMessage){
+                const popChat = await User.populate(chat,{
+                    path: "latestMessage.sender",
+                    select: "name email"
+                });
+                return popChat;
+            }
+            return chat;
+        }))
         chats = await Promise.all(chats.map(async (chat) => {
             if (chat.latestMessage && chat.latestMessage.iscode) {
                 const popChat = await Code.populate(chat, {
@@ -68,6 +64,7 @@ module.exports.fetchChats = async (req, res) => {
         }));
         res.status(200).json({ success: true, chats: chats });
     } catch (error) {
+        console.log(error);
         throw new ExpressError(error.message, 400);
     }
 }
