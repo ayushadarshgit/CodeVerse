@@ -31,14 +31,22 @@ const fileSchema = Joi.object({
             .required(),
         language: Joi.string()
             .required()
-    }).required()
+    }).required(),
+    folderId: Joi.string()
+        .required(),
+    token: Joi.any()
+        .required()
 });
 
 const folderSchema = Joi.object({
     folder: Joi.object({
         foldername: Joi.string()
+            .required(),
+        rootID: Joi.string()
             .required()
-    }).required()
+    }).required(),
+    token: Joi.any()
+        .required()
 });
 
 const messageSchema = Joi.object({

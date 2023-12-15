@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 const codeSchema = new Schema({
     code: {
         type: String,
-        required: true
     },
     language: {
         type: String,

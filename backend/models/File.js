@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Code = require("./Code");
 const Schema = mongoose.Schema;
 
 const fileSchema = new Schema({
@@ -18,8 +19,16 @@ const fileSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User"
     }
-},{
+}, {
     timestamps: true
 })
 
-module.exports = mongoose.model("File",fileSchema);
+fileSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        await Code.deleteMany({
+            _id: doc.content
+        });
+    }
+});
+
+module.exports = mongoose.model("File", fileSchema);

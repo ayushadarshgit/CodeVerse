@@ -11,7 +11,9 @@ const initialState = {
     chats: [],
     selectedChat: null,
     selectedChatMessages: [],
-    messagesLoading: false
+    messagesLoading: false,
+    folderLoading: true,
+    folder: null
 }
 
 export const authSlice = createSlice({
@@ -56,6 +58,12 @@ export const authSlice = createSlice({
             const m = state.selectedChatMessages
             m.push(actions.payload.message)
             state.selectedChatMessages = m
+        },
+        setFolderLoading: (state, actions) => {
+            state.folderLoading = actions.payload.loading
+        },
+        setFolder: (state, actions) => {
+            state.folder = actions.payload.folder
         }
     }
 })
@@ -66,8 +74,10 @@ export const {
     setChats,
     hideSnack,
     showSnack,
+    setFolder,
     selectChat,
     addMessage,
+    setFolderLoading,
     setMessagesLoaded,
     setMessagesLoading,
     setSelectedChatMessages,

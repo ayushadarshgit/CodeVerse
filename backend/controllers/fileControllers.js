@@ -28,7 +28,11 @@ module.exports.createFile = async (req, res) => {
     folder.files.push(createdFile);
     await folder.save();
 
-    return res.status(200).json({ success: true, file: createdFile });
+    const f = await Folder.findById(folderId)
+        .populate("files")
+        .populate("folders");
+
+    return res.status(200).json({ success: true, folder: f });
 }
 
 module.exports.saveChanges = async (req, res) => {
@@ -56,7 +60,7 @@ module.exports.getFileContent = async (req, res) => {
         .populate("content")
         .populate("owner");
 
-    if (searchedFile.owner !== req.user) {
+    if (!searchedFile.owner._id.equals(req.user._id)) {
         throw new ExpressError("Signin to view the content of the file", 400);
     }
 
@@ -66,14 +70,16 @@ module.exports.getFileContent = async (req, res) => {
 module.exports.deleteFile = async (req, res) => {
     const { fileId, folderId } = req.body;
 
-    const folder = await Folder.findById(folderId)
+    const folder = await Folder.findById(folderId);
+
+    const file = await File.findById(fileId)
         .populate("owner");
 
     if (!folder) {
         throw new ExpressError("Select the folder from where file to be deleted", 400);
     }
 
-    if (folder.owner !== req.user) {
+    if (!file.owner._id.equals(req.user._id)) {
         throw new ExpressError("Signin to delete file from the folder", 400);
     }
 
@@ -83,5 +89,9 @@ module.exports.deleteFile = async (req, res) => {
 
     await File.findByIdAndDelete(fileId);
 
-    return res.status(200).json({ success: true });
+    const f = await Folder.findById(folderId)
+        .populate("files")
+        .populate("folders");
+
+    return res.status(200).json({ success: true, folder: f });
 }

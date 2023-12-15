@@ -23,21 +23,23 @@ const folderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User"
     }
-},{
+}, {
     timestamps: true
 })
 
-folderSchema.post('findByIdAndDelete', async function(doc){
-    if(doc){
+folderSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        const Folder = mongoose.model('Folder', folderSchema);
         await Promise.all(doc.folders.map(async (folderId) => {
             await Folder.findByIdAndDelete(folderId);
         }));
+
         await File.deleteMany({
             _id: {
-                $in: doc.files
-            }
-        })
+                $in: doc.files,
+            },
+        });
     }
-})
+});
 
-module.exports = mongoose.model("Folder",folderSchema);
+module.exports = mongoose.model("Folder", folderSchema);
