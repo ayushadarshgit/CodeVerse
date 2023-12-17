@@ -20,7 +20,9 @@ export default function MessagesLoader() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     backgroundColor: "#111",
-                    borderBottom: "1px solid #555"
+                    borderBottom: "1px solid #555",
+                    borderTopRightRadius: "10px",
+                    borderTopLeftRadius: "10px"
                 }}
             >
                 <Stack
@@ -29,7 +31,7 @@ export default function MessagesLoader() {
                         width: "400px",
                         height: "70px",
                         justifyContent: "flex-start",
-                        alignItems: "center",
+                        alignItems: "center"
                     }}
                 >
                     <Stack

@@ -11,7 +11,7 @@ router.route('/create')
     .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn), catchAsync(validateFile), catchAsync(files.createFile));
 
 router.route('/save')
-    .put(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.saveChanges));
+    .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.saveChanges));
 
 router.route('/delete')
     .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.deleteFile));

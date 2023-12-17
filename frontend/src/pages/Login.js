@@ -1,11 +1,14 @@
 import { Stack, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CompilerTopBar from '../components/CompilerTopBar'
 import TypingEffect from '../components/TypingEffect'
 import LoginComponent from '../components/LoginComponent'
 import SignupComponent from '../components/SignupComponent'
+import SnackBar from '../components/SnackBar'
+import { useDispatch } from 'react-redux'
+import { showSnack } from '../features/login/loginSlice'
 
-export default function Login() {
+export default function Login({ redirected, component }) {
     const quotes = [
         "Write code, share wisdom. CodeVerse: Your digital legacy starts here.",
         "Code your dreams into reality. The more you code, the closer you get.",
@@ -27,6 +30,25 @@ export default function Login() {
     const handleClick = () => {
         setView(!view)
     }
+    const dispatch = useDispatch();
+
+    const setShowSnackFunction = (message, severity) => {
+        dispatch(showSnack({
+            message: message,
+            severity: severity
+        }))
+    }
+
+    useEffect(() => {
+        if (redirected && component === "filemanager") {
+            setShowSnackFunction("Please login to see your files and folders", "warning");
+        } else if (redirected && component === "messages") {
+            setShowSnackFunction("Please login to see your messages", "warning");
+        } else if (redirected && component === "files") {
+            setShowSnackFunction("Please login to see your files", "warning");
+        }
+        // eslint-disable-next-line
+    }, [])
     return (
         <Stack
             sx={{
@@ -81,7 +103,7 @@ export default function Login() {
                     <Stack
                         sx={{
                             height: "100%",
-                            width: {xs: "0%", lg:"40%"}
+                            width: { xs: "0%", lg: "40%" }
                         }}
                     >
 
@@ -100,7 +122,7 @@ export default function Login() {
 
                     <Stack
                         sx={{
-                            width: {xs: "100%", lg:"60%"},
+                            width: { xs: "100%", lg: "60%" },
                             height: "100%",
                             backgroundColor: "#333",
                             borderTopRightRadius: "8px",
@@ -128,6 +150,7 @@ export default function Login() {
                     </Stack>
                 </Stack>
             </Stack>
+            <SnackBar />
         </Stack>
     )
 }

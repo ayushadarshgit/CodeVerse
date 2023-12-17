@@ -1,5 +1,5 @@
-import { Alert, Divider, Skeleton, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
-import React, { useState } from 'react'
+import { Alert, Divider, Skeleton, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon, Stack } from '@mui/material';
+import React, { useEffect, useState } from 'react'
 import InputComponent from './InputComponent';
 import { CompileCode } from "../Config/CompileCode"
 
@@ -12,6 +12,10 @@ import CopyToClipboard from '../Config/CopyToClipboard';
 import InputCompilingLoader from '../Loaders/InputCompilingLoader';
 import OutputComponent from './OutputComponent';
 import OutputCompilingLoader from '../Loaders/OutputCompilingLoader';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOpenedFiles, showSnack } from '../features/login/loginSlice';
+import SnackBar from './SnackBar';
+import { saveFileChanges } from '../Config/EditorControllers';
 
 export default function InputOutput({ editorRef, lang, setLang }) {
   const [input, setInput] = useState("");
@@ -24,6 +28,17 @@ export default function InputOutput({ editorRef, lang, setLang }) {
     output: ["Compile The Code To View Output...."],
     success: true
   })
+  const openedView = useSelector(state => state.openedView);
+  const openedFiles = useSelector(state => state.openedFiles);
+  const openedFilesSavedCode = useSelector(state => state.openedFilesSavedCode);
+  const openedFilesCurrentCode = useSelector(state => state.openedFilesCurrentCode);
+  const dispatch = useDispatch();
+  const setShowSnackFunction = (message, severity) => {
+    dispatch(showSnack({
+      message: message,
+      severity: severity
+    }))
+  }
 
 
   const handleOpen = () => setOpen(true);
@@ -32,7 +47,11 @@ export default function InputOutput({ editorRef, lang, setLang }) {
   const handleCompile = () => {
     const model = editorRef.current.getModel();
     const formattedCode = model.getValue();
-    CompileCode(setIsCompiling, setView, setOutput, formattedCode, lang, input)
+    if (formattedCode === "") {
+      setShowSnackFunction("Please provide the code to compile", "error");
+    } else {
+      CompileCode(setIsCompiling, setView, setOutput, formattedCode, lang, input)
+    }
 
 
     // Need To Import This function from CompilerCode.js file
@@ -54,39 +73,66 @@ export default function InputOutput({ editorRef, lang, setLang }) {
     setCopied(false);
   }
 
+  const saveChanges = () => {
+    const sc = openedFilesSavedCode.filter(f => f.id !== openedView._id);
+    const cc = openedFilesCurrentCode.filter(f => f.id === openedView._id);
+    sc.push(cc[0]);
+    saveFileChanges(openedView._id, cc[0].code, setShowSnackFunction);
+    dispatch(setOpenedFiles({ files: openedFiles, savedCode: sc, currentCode: openedFilesCurrentCode }));
+  }
+
+  const handleSave = () => {
+    if (!setLang) {
+      const sc = openedFilesSavedCode.filter(f => f.id === openedView._id);
+      const cc = openedFilesCurrentCode.filter(f => f.id === openedView._id);
+      if (sc[0].code !== cc[0].code) {
+        saveChanges();
+      } else {
+        setShowSnackFunction("The file is up to date. No need to save", "success");
+      }
+    } else {
+      setShowSnackFunction("Here", "error");
+    }
+  }
+
+  useEffect(() => {
+    setInput("");
+    setView(true);
+    setOpen(false);
+    setIsCompiling(false);
+  }, [openedView])
+
   const actions = [
     { icon: <PlayArrowIcon sx={{ color: "#000" }} onClick={handleCompile} />, name: 'Compile Code' },
-    { icon: <SaveIcon sx={{ color: "#000" }} />, name: 'Save Code' },
+    { icon: <SaveIcon sx={{ color: "#000" }} onClick={handleSave} />, name: 'Save Code' },
     { icon: <FileCopyIcon sx={{ color: "#000" }} onClick={handleCopy} />, name: 'Copy Code' },
     { icon: <ShareIcon sx={{ color: "#000" }} />, name: 'Share Code' },
   ];
   return (
-    <div style={{
+    <Stack style={{
       backgroundColor: "#333",
       width: "100%",
       height: "100%",
-      display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
       alignItems: "center",
 
       overflow: "scroll"
     }}>
-      <div style={{
+      <Stack style={{
         width: "100%",
         justifyContent: "flex-start",
         alignItems: "center",
-        display: "flex",
         backgroundColor: "#222",
         borderTop: "1px solid #444",
-        height: "50px"
+        height: "50px",
+        flexDirection: "row"
       }}>
-        <div
+        <Stack
           style={{
             width: "100px",
             color: view ? "#fff" : "#aaa",
             fontSize: "large",
-            display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "30px",
@@ -94,19 +140,18 @@ export default function InputOutput({ editorRef, lang, setLang }) {
             backgroundColor: view ? "#333" : "#222",
             borderRadius: "5px",
             marginLeft: "10px",
-            marginRight: "10px"
+            marginRight: "10px",
           }}
           onClick={() => setView(true)}
         >
           Input
-        </div>
+        </Stack>
         <Divider orientation='vertical' color="#999" flexItem variant='middle' />
-        <div
+        <Stack
           style={{
             width: "100px",
             color: !view ? "#fff" : "#aaa",
             fontSize: "large",
-            display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "30px",
@@ -118,13 +163,12 @@ export default function InputOutput({ editorRef, lang, setLang }) {
           onClick={() => setView(false)}
         >
           Output
-        </div>
-      </div>
-      {view && <div
+        </Stack>
+      </Stack>
+      {view && <Stack
         style={{
           width: "100%",
           height: "80%",
-          display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
           flexDirection: "column"
@@ -135,12 +179,11 @@ export default function InputOutput({ editorRef, lang, setLang }) {
             <InputCompilingLoader /> :
             <InputComponent lang={lang} setLang={setLang} input={input} setInput={setInput}
             />)}
-      </div>}
-      {view && <div
+      </Stack>}
+      {view && <Stack
         style={{
           width: "100%",
           height: "10%",
-          display: "flex",
           justifyContent: "flex-end",
           alignItems: "center"
         }}
@@ -187,16 +230,17 @@ export default function InputOutput({ editorRef, lang, setLang }) {
             Code Copied To Clipboard
           </Alert>
         </Snackbar>
-      </div>}
+      </Stack>}
       {
         !view &&
-        <div style={{
+        <Stack style={{
           width: "100%",
           height: "92%"
         }}>
           {!isCompiling ? <OutputComponent output={output} /> : <OutputCompilingLoader />}
-        </div>
+        </Stack>
       }
-    </div>
+      <SnackBar />
+    </Stack>
   )
 }

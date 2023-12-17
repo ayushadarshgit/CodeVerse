@@ -147,3 +147,52 @@ export async function deleteExistingFile(fileId, folderId, setShowSnackFunction,
     }
     setFolderLoadingFunction(false);
 }
+
+export async function getFileContents(fileId, setOpenedCodeFunction, setShowSnackFunction) {
+    const token = localStorage.getItem("codeverseUserSignInToken");
+    const response = await fetch(
+        "http://localhost:5000/codeverse/files",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                fileId: fileId
+            }),
+        }
+    );
+    const json = await response.json();
+    if (json.success) {
+        setOpenedCodeFunction(json.file.content);
+        return { success: true, code: json.file.content };
+    } else {
+        setShowSnackFunction(json.err, "error");
+    }
+    return { success: false };
+}
+
+export async function saveFileChanges(fileId, code, setShowSnackFunction) {
+    const token = localStorage.getItem("codeverseUserSignInToken");
+    const response = await fetch(
+        "http://localhost:5000/codeverse/files/save",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                fileId: fileId,
+                code: code
+            }),
+        }
+    );
+    const json = await response.json();
+    if (json.success) {
+        setShowSnackFunction("File saved successfully", "success");
+    } else {
+        setShowSnackFunction(json.err, "error");
+    }
+}

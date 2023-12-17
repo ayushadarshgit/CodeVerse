@@ -13,7 +13,12 @@ const initialState = {
     selectedChatMessages: [],
     messagesLoading: false,
     folderLoading: true,
-    folder: null
+    folder: null,
+    openedFiles: [],
+    openedFilesSavedCode: [],
+    openedFilesCurrentCode: [],
+    openedView: null,
+    openedCode: "",
 }
 
 export const authSlice = createSlice({
@@ -64,6 +69,17 @@ export const authSlice = createSlice({
         },
         setFolder: (state, actions) => {
             state.folder = actions.payload.folder
+        },
+        setOpenedFiles: (state, actions) => {
+            state.openedFiles = actions.payload.files
+            state.openedFilesSavedCode = actions.payload.savedCode
+            state.openedFilesCurrentCode = actions.payload.currentCode
+        },
+        setOpenedView: (state, actions) => {
+            state.openedView = actions.payload.view
+        },
+        setOpenedCode: (state, actions) => {
+            state.openedCode = actions.payload.code
         }
     }
 })
@@ -77,6 +93,9 @@ export const {
     setFolder,
     selectChat,
     addMessage,
+    setOpenedView,
+    setOpenedCode,
+    setOpenedFiles,
     setFolderLoading,
     setMessagesLoaded,
     setMessagesLoading,

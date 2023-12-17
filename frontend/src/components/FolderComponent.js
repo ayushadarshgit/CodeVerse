@@ -7,17 +7,23 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import FolderIcon from '@mui/icons-material/Folder';
-import { setFolder, setFolderLoading, showSnack } from '../features/login/loginSlice';
-import { createNewFileFunction, createNewFolder, deleteExistingFile, deleteFolder, getFolder, goToParentFolder } from '../Config/EditorControllers';
+import { setFolder, setFolderLoading, setOpenedCode, setOpenedFiles, setOpenedView, showSnack } from '../features/login/loginSlice';
+import { createNewFileFunction, createNewFolder, deleteExistingFile, deleteFolder, getFileContents, getFolder, goToParentFolder } from '../Config/EditorControllers';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function FolderComponent() {
     const newFolderNameRef = useRef(null);
     const newFileNameRef = useRef(null);
     const folder = useSelector(state => state.folder);
+    const openedFiles = useSelector(state => state.openedFiles);
+    const openedFilesSavedCode = useSelector(state => state.openedFilesSavedCode);
+    const openedFilesCurrentCode = useSelector(state => state.openedFilesCurrentCode);
     const dispatch = useDispatch();
+
+    const navigate = useNavigate();
 
     const [createFolder, setCreateFolder] = useState(false);
     const [createFile, setCreateFile] = useState(false);
@@ -66,10 +72,14 @@ export default function FolderComponent() {
     }
 
     const createNewFolderChange = () => {
+        setHighlight(-1);
+        setHighlightFile(-1);
         setCreateFolder(true);
     }
 
     const createNewFileChange = () => {
+        setHighlight(-1);
+        setHighlightFile(-1);
         setCreateFile(true);
     }
 
@@ -173,6 +183,33 @@ export default function FolderComponent() {
         }
     }
 
+    const setOpenedCodeFunction = (code) => {
+        dispatch(setOpenedCode({ code: code }));
+    }
+
+
+    const setHandleOpenedFilesFunction = async (file) => {
+        const f = [...openedFiles]
+        const sc = [...openedFilesSavedCode]
+        const cc = [...openedFilesCurrentCode]
+        if (f.indexOf(file) === -1) {
+            f.push(file);
+            const res = await getFileContents(file._id, setOpenedCodeFunction, setShowSnackFunction);
+            if (res.success) {
+                sc.push({ id: file._id, code: res.code.code });
+                cc.push({ id: file._id, code: res.code.code });
+                console.log(sc,cc);
+                console.log(sc[0].code === cc[0].code);
+                dispatch(setOpenedFiles({ files: f, savedCode: sc, currentCode: cc }));
+                dispatch(setOpenedView({ view: file }));
+            }
+        } else {
+            setShowSnackFunction("File Already Opened", "warning")
+        }
+        setHighlightFile(-1);
+        navigate("/files")
+    }
+
     useEffect(() => {
         if (newFolderNameRef.current) {
             newFolderNameRef.current.focus();
@@ -196,7 +233,7 @@ export default function FolderComponent() {
         java: "https://cdn-icons-png.flaticon.com/256/226/226777.png",
         python: "https://cdn-icons-png.flaticon.com/512/919/919852.png",
         plaintext: "https://cdn-icons-png.flaticon.com/512/2306/2306185.png"
-    }
+    };
 
     return (
         <Stack
@@ -354,7 +391,7 @@ export default function FolderComponent() {
                             cursor: "pointer"
                         }}
                         onClick={() => { handleFileHighLight(ind) }}
-                    // onDoubleClick={() => handleDoubleClick(f._id)}
+                        onDoubleClick={() => setHandleOpenedFilesFunction(f)}
                     >
                         <img src={
                             (f.language === "plaintext" && images.plaintext) ||

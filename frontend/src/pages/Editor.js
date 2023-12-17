@@ -50,7 +50,7 @@ export default function Editor() {
         backgroundColor: "#000"
       }}
     >
-      <CompilerTopBar text="( Editor )" />
+      <CompilerTopBar text="( File Manager )" />
       <Stack
         sx={{
           width: "100%",

@@ -63,10 +63,10 @@ module.exports.validateMessage = async (req, res, next) => {
 module.exports.validateCodeToCompile = async (req, res, next) => {
     const { code, lang } = req.body;
     if (!code) {
-        const msg = "Provide Code To Compile..."
+        const msg = "Provide Code To Compile...\\n"
         throw new ExpressError(msg, 400);
     } else if (!lang) {
-        const msg = "Provide Language To Compile..."
+        const msg = "Provide Language To Compile...\\n"
         throw new ExpressError(msg, 400);
     } else {
         next();

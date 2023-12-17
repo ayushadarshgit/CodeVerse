@@ -42,7 +42,7 @@ module.exports.saveChanges = async (req, res) => {
         .populate("content")
         .populate("owner");
 
-    if (file.owner !== req.user) {
+    if (!file.owner._id.equals(req.user._id)) {
         throw new ExpressError("You need to signin to change this file", 400);
     }
 

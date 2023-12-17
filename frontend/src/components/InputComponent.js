@@ -68,7 +68,7 @@ export default function InputComponent({ lang, setLang, input, setInput }) {
         >
           Selected Language: <span style={{ fontSize: "x-large" }}>{lang}</span>
         </Stack>
-        <Button color='warning' onClick={handleShowSelectorOpen}>Change Language</Button>
+        {setLang && <Button color='warning' onClick={handleShowSelectorOpen}>Change Language</Button>}
         <Dialog open={showSelector} onClose={handleShowSelectorClose}>
           <DialogTitle>Select the Language Of Your Code...</DialogTitle>
           <DialogContent>

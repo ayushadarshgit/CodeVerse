@@ -8,6 +8,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/login/loginSlice';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
 
 const BootstrapTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -27,6 +28,9 @@ export default function SideNav({ highlight }) {
 
     const isLoggedIn = useSelector(store => store.isLoggedIn);
     const user = useSelector(state => state.user);
+    const openedFiles = useSelector(state => state.openedFiles);
+    const openedFilesSavedCode = useSelector(state => state.openedFilesSavedCode);
+    const openedFilesCurrentCode = useSelector(state => state.openedFilesCurrentCode);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -67,6 +71,22 @@ export default function SideNav({ highlight }) {
             children: `${name.split(" ")[0][0]}`,
         };
     }
+
+    const checkChange = (code, id) => {
+        const cc = openedFilesCurrentCode.filter(f => f.id === id);
+        return cc[0].code !== code;
+    }
+
+    const getUnsavedFilesCount = () => {
+        let res = 0;
+        for (let i = 0; i < openedFilesSavedCode.length; i++) {
+            if (checkChange(openedFilesSavedCode[i].code, openedFilesSavedCode[i].id)) {
+                res++;
+            }
+        }
+        return res;
+    }
+
     return (
         <Box
             sx={{
@@ -104,7 +124,7 @@ export default function SideNav({ highlight }) {
                 </Box>
                 <Box borderLeft={highlight === "filemanager" ? "3px solid blue" : "none"} backgroundColor={highlight === "filemanager" ? "#333" : "none"}>
                     <IconButton onClick={() => handleClick("/editor")}>
-                        <BootstrapTooltip title="Projects" placement="right">
+                        <BootstrapTooltip title="File Manager" placement="right">
                             <FolderSharedIcon sx={iconStyle} />
                         </BootstrapTooltip>
                     </IconButton>
@@ -116,6 +136,15 @@ export default function SideNav({ highlight }) {
                         </BootstrapTooltip>
                     </IconButton>
                 </Box>
+                {openedFiles.length > 0 && <Box borderLeft={highlight === "files" ? "3px solid blue" : "none"} backgroundColor={highlight === "files" ? "#333" : "none"}>
+                    <IconButton onClick={() => handleClick("/files")}>
+                        <Badge badgeContent={getUnsavedFilesCount()} color='success' max={10}>
+                            <BootstrapTooltip title="Editor" placement="right">
+                                <FileOpenIcon sx={iconStyle} />
+                            </BootstrapTooltip>
+                        </Badge>
+                    </IconButton>
+                </Box>}
             </Box>
             <Box
                 sx={{
