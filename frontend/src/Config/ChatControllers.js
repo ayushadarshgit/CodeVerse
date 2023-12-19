@@ -37,7 +37,6 @@ export async function createNewChat(id){
         }
     );
     const json = await response.json();
-    console.log(json);
     if(json.success){
         return {success: true};
     }else{

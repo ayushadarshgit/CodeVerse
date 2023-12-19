@@ -3,11 +3,40 @@ import React from 'react'
 import { useSelector } from 'react-redux';
 import { stringAvatar } from '../Config/AvatarControllers';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import VerifiedIcon from '@mui/icons-material/Verified';
 
 export default function ShowChats({ name, email, lastMessage, isSearched, handleClick, id, users }) {
     const selectedChat = useSelector(state => state.selectedChat);
     const user = useSelector(state => state.user);
-    console.log(selectedChat);
+    const trimMessage = (m) => {
+        const x = m.slice(m, 17);
+        return x;
+    }
+    const getTime = (date) => {
+        const d = new Date(date);
+        const hours = d.getHours();
+        const h = hours - 12;
+        const minutes = d.getMinutes();
+        const day = d.getDate();
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+        const todayDate = new Date();
+        if (todayDate.getMonth() + 1 === month && todayDate.getFullYear() === year) {
+            const d = todayDate.getDate();
+            if (d === day) {
+                if (h > 0) {
+
+                    return `${h < 10 ? "0" : ""}${h} : ${minutes < 10 ? "0" : ""}${minutes} pm`;
+                }
+                return `${hours < 10 ? "0" : ""}${hours} : ${minutes < 10 ? "0" : ""}${minutes} am`;
+            }
+            if (d === day + 1) {
+                return `Yesterday`
+
+            }
+        }
+        return `${day < 10 ? "0" : ""}${day}/${month < 10 ? "0" : ""}${month}/${year}`;
+    }
     return (
         <Stack
             sx={{
@@ -18,7 +47,7 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
                 alignItems: "center",
                 cursor: "pointer",
                 width: "95%",
-                border: id !== selectedChat ? "none" : "1px solid #777",
+                border: id !== selectedChat ? "none" : "0.5px solid #555",
                 borderRadius: "5px"
             }}
             onClick={() => handleClick(id)}
@@ -49,25 +78,65 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
                 <Typography sx={{ fontSize: "x-large", color: "#fff" }}>{name}</Typography>
                 {isSearched ? <Typography sx={{ fontSize: "medium", color: "#aaa" }}>{email}</Typography> :
 
-                    lastMessage ? (lastMessage.isCode ?
-                        <Typography sx={{ fontSize: "medium", color: "#aaa" }}>
-                            {lastMessage.sender._id === user._id && <DoneAllIcon />}
-                            {lastMessage.code.title}
+                    lastMessage ? (lastMessage.iscode ?
+                        <Typography sx={{ fontSize: "medium", color: "#aaa", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "250px" }}>
+                            <Stack
+                                sx={{
+                                    width: "70%",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    overflowX: "hidden",
+                                }}
+                            >
+                                {lastMessage.sender._id === user._id &&
+                                    <Stack
+                                        sx={{
+                                            width: "20px",
+                                            height: "100%",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            marginRight: "10px",
+                                        }}>
+                                        {
+                                            lastMessage.readBy.length === users.length ?
+                                                <VerifiedIcon sx={{ color: "#16FF00", fontSize: "large" }} /> :
+                                                <DoneAllIcon sx={{ color: "#aaa", fontSize: "large" }} />
+                                        }
+                                    </Stack>}
+                                    {trimMessage(lastMessage.code.title+" Code")}{(lastMessage.code.title.length + "Code") > 12 && "..."}
+                            </Stack>
+                            <Stack sx={{ marginLeft: "5px", fontSize: "small" }}>{getTime(lastMessage.createdAt)}</Stack>
                         </Typography>
                         :
-                        <Typography sx={{ fontSize: "medium", color: "#aaa", display: "flex", flexDirection: "row" }}>
-                            {lastMessage.sender._id === user._id &&
-                                <Stack
-                                    sx={{
-                                        width: "20px",
-                                        height: "100%",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        marginRight: "10px"
-                                    }}>
-                                    <DoneAllIcon color={lastMessage.readBy.length === users.length ? "primary" : "#aaa"} />
-                                </Stack>}
-                            {lastMessage.message}
+                        <Typography sx={{ fontSize: "medium", color: "#aaa", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "250px" }}>
+                            <Stack
+                                sx={{
+                                    width: "70%",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    overflowX: "hidden",
+                                }}
+                            >
+                                {lastMessage.sender._id === user._id &&
+                                    <Stack
+                                        sx={{
+                                            width: "20px",
+                                            height: "100%",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            marginRight: "10px",
+                                        }}>
+                                        {
+                                            lastMessage.readBy.length === users.length ?
+                                                <VerifiedIcon sx={{ color: "#16FF00", fontSize: "large" }} /> :
+                                                <DoneAllIcon sx={{ color: "#aaa", fontSize: "large" }} />
+                                        }
+                                    </Stack>}
+                                {trimMessage(lastMessage.message)}{lastMessage.message.length > 12 && "..."}
+                            </Stack>
+                            <Stack sx={{ marginLeft: "5px", fontSize: "small" }}>{getTime(lastMessage.createdAt)}</Stack>
                         </Typography>
                     )
                         :

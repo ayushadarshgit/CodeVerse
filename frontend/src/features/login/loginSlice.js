@@ -32,6 +32,17 @@ export const authSlice = createSlice({
         logout: (state) => {
             state.isLoggedIn = false
             state.user = undefined
+            state.chats = []
+            state.selectedChat = null
+            state.selectedChatMessages = []
+            state.messagesLoading = false
+            state.folderLoading = false
+            state.folder = null
+            state.openedFiles = []
+            state.openedFilesSavedCode = []
+            state.openedFilesCurrentCode = []
+            state.openedView = null
+            state.openedCode = ""
         },
         showSnack: (state, actions) => {
             state.show = true;

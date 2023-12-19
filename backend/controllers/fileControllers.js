@@ -95,3 +95,49 @@ module.exports.deleteFile = async (req, res) => {
 
     return res.status(200).json({ success: true, folder: f });
 }
+
+module.exports.saveTempFile = async (req, res) => {
+    const { code, folderId } = req.body;
+    if (!code) {
+        throw new ExpressError("Please provide the code to save", 400);
+    }
+    const defaultFolder = await Folder.findById(folderId)
+        .populate("folders");
+    if (!defaultFolder) {
+        throw new ExpressError("Default folder not found", 400);
+    }
+    let f = defaultFolder.folders;
+    f = f.filter((fol) => {
+        return fol.foldername === "Temp"
+    })
+    let destFolder;
+    if (f.length === 0) {
+        destFolder = new Folder();
+        destFolder.foldername = "Temp";
+        destFolder.owner = req.user;
+        await destFolder.save();
+        defaultFolder.folders.push(destFolder);
+        await defaultFolder.save();
+    } else {
+        destFolder = f[0];
+    }
+    let size = destFolder.files.length
+
+    const createdCode = new Code();
+    createdCode.language = code.language;
+    createdCode.code = code.code;
+    createdCode.title = `untitled${size === 0 ? "" : `${size}`}`;
+    await createdCode.save();
+
+    const createdFile = new File();
+    createdFile.filename = code.title ? code.title : `untitled${size === 0 ? "" : `${size}`}`;
+    createdFile.language = code.language;
+    createdFile.owner = req.user;
+    createdFile.content = createdCode;
+
+    destFolder.files.push(createdFile);
+    await destFolder.save();
+
+    await createdFile.save();
+    return res.status(200).json({ success: true });
+}

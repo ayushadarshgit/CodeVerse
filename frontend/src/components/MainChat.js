@@ -8,14 +8,23 @@ import SendIcon from '@mui/icons-material/Send';
 import CodeIcon from '@mui/icons-material/Code';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MessagesLoader from '../Loaders/MessagesLoader';
-import { addMessage, selectChat, showSnack } from '../features/login/loginSlice';
+import { addMessage, selectChat, setFolder, showSnack } from '../features/login/loginSlice';
 import { getBorderBottomRadius, getBorderTopRadius, getDate, getShowDate, sendMessage } from '../Config/MessagesControllers';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import MonacoEditor from './MonacoEditor';
+import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import CopyToClipboard from '../Config/CopyToClipboard';
+import SaveIcon from '@mui/icons-material/Save';
+import { saveTempFile } from '../Config/EditorControllers';
+import { useNavigate } from 'react-router-dom';
 
 export default function MainChat() {
   const selectedChat = useSelector(store => store.selectedChat);
   const user = useSelector(store => store.user);
   const messagesLoading = useSelector(store => store.messagesLoading);
   const selectedChatMessages = useSelector(store => store.selectedChatMessages);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -30,6 +39,7 @@ export default function MainChat() {
     }
   });
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
 
   const handleChange = (evt) => {
     setMessage({ ...message, [evt.target.name]: evt.target.value });
@@ -51,8 +61,59 @@ export default function MainChat() {
   }
 
   const sendMessageFunction = () => {
-    setSendingMessage(true);
-    sendMessage(message, addMessageFunction, setShowSnackFunction, setSendingMessage, setMessage, selectedChat);
+    if (message.message !== "") {
+      setSendingMessage(true);
+      const m = message;
+      setMessage({ ...message, message: "" });
+      sendMessage(m, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat);
+    }
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      sendMessageFunction();
+    }
+  }
+
+  const getTime = (date) => {
+    const d = new Date(date);
+    const hours = d.getHours();
+    const h = hours - 12;
+    const minutes = d.getMinutes();
+    if (h > 0) {
+
+      return `${h < 10 ? "0" : ""}${h} : ${minutes < 10 ? "0" : ""}${minutes} pm`;
+    }
+    return `${hours < 10 ? "0" : ""}${hours} : ${minutes < 10 ? "0" : ""}${minutes} am`;
+  }
+
+  const trimMessage = (m) => {
+    const x = m.slice(m, 17);
+    return x;
+  }
+
+  const handleCopy = (code) => {
+    CopyToClipboard(code);
+    setShowSnackFunction("Copied", "success");
+  }
+
+  const handleCodeSave = (m) => {
+    setLoadingSave(true);
+    const code = {
+      code: m.code.code,
+      language: m.code.language,
+      title: m.code.title
+    }
+    saveTempFile(user.defaultfolder, code, setShowSnackFunction, navigate);
+    dispatch(setFolder({ folder: null }));
+  }
+
+  const images = {
+    javascript: "https://cdn.worldvectorlogo.com/logos/javascript-1.svg",
+    cpp: "https://cdn-icons-png.flaticon.com/512/6132/6132222.png",
+    java: "https://cdn-icons-png.flaticon.com/256/226/226777.png",
+    python: "https://cdn-icons-png.flaticon.com/512/919/919852.png",
+    plaintext: "https://cdn-icons-png.flaticon.com/512/2306/2306185.png"
   }
 
   return (
@@ -189,7 +250,7 @@ export default function MainChat() {
               >
                 <Stack
                   sx={{
-                    height: "500px",
+                    height: "495px",
                     width: "100%",
                     justifyContent: "flex-start",
                     alignItems: "center",
@@ -235,9 +296,10 @@ export default function MainChat() {
                             justifyContent: "center",
                             alignItems: "center",
                             borderRadius: "10px",
-                            marginTop: "15px",
+                            marginTop: ind === 0 ? "1px" : "15px",
                             padding: "10px 20px",
-                            fontSize: "larger"
+                            fontSize: "larger",
+                            marginBottom: "10px"
                           }}
                         >
                           {getDate(m.createdAt).date}
@@ -246,10 +308,8 @@ export default function MainChat() {
                         sx={{
                           width: "95%",
                           justifyContent: m.sender._id === user._id ? "flex-end" : "flex-start",
-                          alignItems: "flex-start",
+                          alignItems: "flex-end",
                           flexDirection: "row",
-                          height: "30%",
-                          marginTop: getBorderTopRadius(selectedChatMessages, ind) === 8 ? "20px" : "0px"
                         }}
                       >
                         {m.sender._id !== user._id
@@ -257,7 +317,7 @@ export default function MainChat() {
                           <Stack
                             sx={{
                               width: "50px",
-                              height: "100%",
+                              height: "50px",
                               justifyContent: "center",
                               alignItems: "center",
                               marginRight: "5px"
@@ -275,24 +335,165 @@ export default function MainChat() {
                         }
                         <Stack
                           sx={{
-                            backgroundColor: m.sender._id === user._id ? "#7752FE" : "#527853",
-                            justifyContent: "center",
-                            alignItems: "center",
+                            backgroundColor: m.sender._id === user._id ? "#3559E0" : "#379237",
+                            justifyContent: "flex-start",
+                            alignItems: "flex-start",
                             color: "#fff",
                             fontSize: "larger",
-                            padding: "8px",
-                            paddingLeft: "10px",
-                            paddingRight: "10px",
                             borderTopLeftRadius: `${getBorderTopRadius(selectedChatMessages, ind)}px`,
                             borderTopRightRadius: `${getBorderTopRadius(selectedChatMessages, ind)}px`,
                             borderBottomRightRadius: `${getBorderBottomRadius(selectedChatMessages, ind)}px`,
                             borderBottomLeftRadius: `${getBorderBottomRadius(selectedChatMessages, ind)}px`,
                             maxWidth: "50%",
                             flexWrap: "wrap",
-                            marginBottom: "5px"
+                            marginBottom: "5px",
+                            minWidth: m.iscode ? "50%" : "50px",
+                            paddingTop: "8px",
+                            paddingLeft: "10px",
+                            paddingBottom: "8px",
+                            paddingRight: "10px"
                           }}
                         >
-                          {m.message}
+                          <Stack
+                            sx={{
+                              minWidth: m.iscode ? "100%" : "150px",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              borderRadius: "5px",
+                              flexDirection: "column"
+                            }}
+                          >
+                            {!m.iscode
+                              ?
+                              m.message
+                              :
+                              <Stack
+                                sx={{
+                                  width: "100%",
+                                  height: "350px",
+                                  justifyContent: "space-between",
+                                  alignItems: "center"
+                                }}
+                              >
+                                <Stack
+                                  sx={{
+                                    width: "100%",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    height: "40px"
+                                  }}
+                                >
+                                  <Stack
+                                    sx={{
+                                      width: "200px",
+                                      justifyContent: "flex-start",
+                                      alignItems: "center",
+                                      marginLeft: "5px",
+                                      marginRight: "3px",
+                                      flexDirection: "row",
+                                    }}
+                                  >
+                                    <img src={
+                                      (m.code.language === "plaintext" && images.plaintext) ||
+                                      (m.code.language === "javascript" && images.javascript) ||
+                                      (m.code.language === "python" && images.python) ||
+                                      (m.code.language === "java" && images.java) ||
+                                      (m.code.language === "cpp" && images.cpp)
+                                    }
+                                      style={{
+                                        height: "30px",
+                                        width: "30px",
+                                        marginRight: "5px"
+                                      }}
+                                      alt=""
+                                    />
+                                    {
+                                      trimMessage(m.code.title + "." + ((m.code.language === "plaintext" && "txt") ||
+                                        (m.code.language === "javascript" && "js") ||
+                                        (m.code.language === "python" && "py") ||
+                                        (m.code.language === "java" && "java") ||
+                                        (m.code.language === "cpp" && "cpp")))
+                                    }
+                                    {
+                                      m.code.title + "." + ((m.code.language === "plaintext" && "txt") ||
+                                        (m.code.language === "javascript" && "js") ||
+                                        (m.code.language === "python" && "py") ||
+                                        (m.code.language === "java" && "java") ||
+                                        (m.code.language === "cpp" && "cpp")).length > 17 && "..."
+                                    }
+                                  </Stack>
+                                  <Stack
+                                    sx={{ flexDirection: "row" }}
+                                  >
+                                    <Stack
+                                      sx={{
+                                        width: "50px",
+                                        height: "100%",
+                                      }}
+                                    >
+                                      <IconButton onClick={() => handleCopy(m.code.code)}>
+                                        <FileCopyIcon sx={{ color: "#fff" }} />
+                                      </IconButton>
+                                    </Stack>
+                                    {m.sender._id !== user._id && <Stack
+                                      sx={{
+                                        width: "50px",
+                                        height: "100%",
+                                        justifyContent: "flex-end",
+                                        alignItems: "center"
+                                      }}
+                                    >
+                                      {
+                                        !loadingSave ?
+                                          <IconButton onClick={() => handleCodeSave(m)} >
+                                            <SaveIcon sx={{ color: "#fff" }} />
+                                          </IconButton> :
+                                          <CircularProgress size="25px" color='secondary' />
+                                      }
+                                    </Stack>}
+                                  </Stack>
+                                </Stack>
+                                <Stack
+                                  sx={{
+                                    width: "100%",
+                                    height: "320px",
+                                    borderRadius: "5px"
+                                  }}
+                                >
+                                  <MonacoEditor startCode={m.code.code} lang={m.code.language} />
+                                </Stack>
+                              </Stack>
+                            }
+                            <Typography
+                              sx={{
+                                fontSize: "small",
+                                color: "#ddd",
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "flex-end",
+                                paddingRight: "5px",
+                                marginTop: "5px",
+                              }}>
+                              {m.sender._id === user._id && <Stack
+                                sx={{
+                                  width: "20px",
+                                  height: "100%",
+                                  justifyContent: "flex-end",
+                                  alignItems: "flex-end",
+                                  marginRight: "6px"
+                                }}>
+                                {
+                                  m.readBy.length === selectedChat.users.length ?
+                                    <VerifiedIcon sx={{ color: "#16FF00", fontSize: "large" }} /> :
+                                    <DoneAllIcon sx={{ color: "#aaa", fontSize: "large" }} />
+                                }
+                              </Stack>}
+                              {getTime(m.createdAt)}
+                            </Typography>
+                          </Stack>
                         </Stack>
                       </Stack>
                     </>
@@ -314,6 +515,7 @@ export default function MainChat() {
                 <TextField
                   value={message.message}
                   onChange={handleChange}
+                  onKeyDown={handleKeyDown}
                   name='message'
                   color='success'
                   placeholder='type your message here..'

@@ -13,11 +13,12 @@ import InputCompilingLoader from '../Loaders/InputCompilingLoader';
 import OutputComponent from './OutputComponent';
 import OutputCompilingLoader from '../Loaders/OutputCompilingLoader';
 import { useDispatch, useSelector } from 'react-redux';
-import { setOpenedFiles, showSnack } from '../features/login/loginSlice';
+import { setFolder, setOpenedFiles, showSnack } from '../features/login/loginSlice';
 import SnackBar from './SnackBar';
-import { saveFileChanges } from '../Config/EditorControllers';
+import { saveFileChanges, saveTempFile } from '../Config/EditorControllers';
+import { useNavigate } from 'react-router-dom';
 
-export default function InputOutput({ editorRef, lang, setLang }) {
+export default function InputOutput({ editorRef, lang, setLang, handleShare }) {
   const [input, setInput] = useState("");
   const [view, setView] = useState(true);
   const [open, setOpen] = useState(false);
@@ -28,6 +29,8 @@ export default function InputOutput({ editorRef, lang, setLang }) {
     output: ["Compile The Code To View Output...."],
     success: true
   })
+  const user = useSelector(state => state.user);
+  const isLoggedIn = useSelector(state => state.isLoggedIn);
   const openedView = useSelector(state => state.openedView);
   const openedFiles = useSelector(state => state.openedFiles);
   const openedFilesSavedCode = useSelector(state => state.openedFilesSavedCode);
@@ -39,6 +42,8 @@ export default function InputOutput({ editorRef, lang, setLang }) {
       severity: severity
     }))
   }
+
+  const navigate = useNavigate();
 
 
   const handleOpen = () => setOpen(true);
@@ -91,7 +96,29 @@ export default function InputOutput({ editorRef, lang, setLang }) {
         setShowSnackFunction("The file is up to date. No need to save", "success");
       }
     } else {
-      setShowSnackFunction("Here", "error");
+      if (!isLoggedIn) {
+        setShowSnackFunction("Please Login to save the code", "error");
+      } else {
+        const model = editorRef.current.getModel();
+        const formattedCode = model.getValue();
+        const code = {
+          code: formattedCode,
+          language: lang
+        }
+        saveTempFile(user.defaultfolder, code, setShowSnackFunction, navigate);
+        dispatch(setFolder({ folder: null }));
+      }
+    }
+  }
+
+  const handleFileShare = () => {
+    if (!setLang) {
+      handleSave();
+      handleShare();
+    } else {
+      if (!isLoggedIn) {
+        setShowSnackFunction("Please Login to save the code", "error");
+      }
     }
   }
 
@@ -102,12 +129,16 @@ export default function InputOutput({ editorRef, lang, setLang }) {
     setIsCompiling(false);
   }, [openedView])
 
-  const actions = [
+  const actions = setLang ? [
     { icon: <PlayArrowIcon sx={{ color: "#000" }} onClick={handleCompile} />, name: 'Compile Code' },
     { icon: <SaveIcon sx={{ color: "#000" }} onClick={handleSave} />, name: 'Save Code' },
     { icon: <FileCopyIcon sx={{ color: "#000" }} onClick={handleCopy} />, name: 'Copy Code' },
-    { icon: <ShareIcon sx={{ color: "#000" }} />, name: 'Share Code' },
-  ];
+  ] : [
+    { icon: <PlayArrowIcon sx={{ color: "#000" }} onClick={handleCompile} />, name: 'Compile Code' },
+    { icon: <SaveIcon sx={{ color: "#000" }} onClick={handleSave} />, name: 'Save Code' },
+    { icon: <FileCopyIcon sx={{ color: "#000" }} onClick={handleCopy} />, name: 'Copy Code' },
+    { icon: <ShareIcon sx={{ color: "#000" }} onClick={handleFileShare} />, name: 'Share Code' },
+  ]
   return (
     <Stack style={{
       backgroundColor: "#333",

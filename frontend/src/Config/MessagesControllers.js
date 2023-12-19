@@ -22,7 +22,7 @@ export const getAllMessages = async (chatId, loadComplete, setSelecetedChatMessa
     loadComplete();
 }
 
-export const sendMessage = async (message, addMessageFunction, setShowSnackFunction, setSendingMessage, setMessage, selectedChat) => {
+export const sendMessage = async (message, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat) => {
     const token = localStorage.getItem("codeverseUserSignInToken");
     message.chat = selectedChat;
     const response = await fetch(
@@ -44,7 +44,6 @@ export const sendMessage = async (message, addMessageFunction, setShowSnackFunct
     } else {
         setShowSnackFunction(json.err, "error");
     }
-    setMessage({ ...message, message: "" });
     setSendingMessage(false);
 }
 

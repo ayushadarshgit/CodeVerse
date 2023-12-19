@@ -13,7 +13,7 @@ import ShowChats from './ShowChats';
 import { getAllMessages } from '../Config/MessagesControllers';
 
 export default function AllChatComponent() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [view, setView] = useState(true);
   const [profiles, setProfiles] = useState([]);
   const [search, setSearch] = useState("");
@@ -46,10 +46,12 @@ export default function AllChatComponent() {
     dispatch(setSelectedChatMessages({ messages: messages }));
   }
 
-  const setSelectedChatFunction = (selectedChat) => {
-    dispatch(selectChat({ selectedChat: selectedChat }));
-    dispatch(setMessagesLoading());
-    getAllMessages(selectedChat._id, setMessagesLoadedFunction, setSelecetedChatMessagesFunction, setShowSnackFunction);
+  const setSelectedChatFunction = (sc) => {
+    if (selectedChat !== sc) {
+      dispatch(selectChat({ selectedChat: sc }));
+      dispatch(setMessagesLoading());
+      getAllMessages(sc._id, setMessagesLoadedFunction, setSelecetedChatMessagesFunction, setShowSnackFunction);
+    }
   }
 
   const fetchUsers = () => {
@@ -94,6 +96,7 @@ export default function AllChatComponent() {
   }
 
   useEffect(() => {
+    setLoading(true);
     dispatch(selectChat({ selectedChat: null }));
     loadChats();
     // eslint-disable-next-line
@@ -109,7 +112,7 @@ export default function AllChatComponent() {
           borderLeft: "1px solid #444",
           border: "1px solid #444",
           borderRadius: "10px",
-          display: !selectedChat ? "flex" : {xs: "none", lg: "flex"}
+          display: !selectedChat ? "flex" : { xs: "none", lg: "flex" }
         }}
       >
         <Stack

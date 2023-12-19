@@ -29,7 +29,7 @@ module.exports.sendMessage = async (req, res) => {
     chat.latestMessage = newMessage;
     await chat.save();
     if (!m) {
-        throw new ExpressError("An Occured while sending the message", 400);
+        throw new ExpressError("An Error Occured while sending the message", 400);
     }
     return res.status(200).json({ success: true, message: m });
 }

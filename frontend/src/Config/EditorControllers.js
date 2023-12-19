@@ -196,3 +196,28 @@ export async function saveFileChanges(fileId, code, setShowSnackFunction) {
         setShowSnackFunction(json.err, "error");
     }
 }
+
+export async function saveTempFile(folderId, code, setShowSnackFunction, navigate) {
+    const token = localStorage.getItem("codeverseUserSignInToken");
+    const response = await fetch(
+        "http://localhost:5000/codeverse/files/createtempfile",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                folderId: folderId,
+                code: code
+            }),
+        }
+    );
+    const json = await response.json();
+    if (json.success) {
+        setShowSnackFunction("File saved inside Temp folder on your desktop", "success");
+        navigate('/editor');
+    } else {
+        setShowSnackFunction(json.err, "error");
+    }
+}

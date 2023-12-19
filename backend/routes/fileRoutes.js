@@ -9,6 +9,9 @@ router.route('/')
 
 router.route('/create')
     .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn), catchAsync(validateFile), catchAsync(files.createFile));
+    
+router.route('/createtempfile')
+    .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn), catchAsync(files.saveTempFile));
 
 router.route('/save')
     .post(catchAsync(validateUserSignin),catchAsync(isLoggedIn),catchAsync(files.saveChanges));
