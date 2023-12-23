@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import ChatLoader from '../Loaders/ChatLoader';
 import { createNewChat, fetchChats, getOtherIndex } from '../Config/ChatControllers';
 import { useDispatch, useSelector } from "react-redux"
-import { selectChat, setChats, setMessagesLoaded, setMessagesLoading, setSelectedChatMessages, showSnack } from '../features/login/loginSlice';
+import { selectChat, setChats, setMessagesLoaded, setMessagesLoading, setNotifications, setSelectedChatMessages, showSnack } from '../features/login/loginSlice';
 import SnackBar from "../components/SnackBar";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import SearchIcon from '@mui/icons-material/Search';
@@ -26,6 +26,7 @@ export default function AllChatComponent() {
   const chats = useSelector(state => state.chats);
 
   const selectedChat = useSelector(state => state.selectedChat);
+  const notifications = useSelector(state => state.notifications);
 
   const getChatsFunction = (chats) => {
     dispatch(setChats({ chats: chats }))
@@ -50,7 +51,11 @@ export default function AllChatComponent() {
     if (selectedChat !== sc) {
       dispatch(selectChat({ selectedChat: sc }));
       dispatch(setMessagesLoading());
-      getAllMessages(sc._id, setMessagesLoadedFunction, setSelecetedChatMessagesFunction, setShowSnackFunction);
+      if (sc) {
+        getAllMessages(sc._id, setMessagesLoadedFunction, setSelecetedChatMessagesFunction, setShowSnackFunction);
+        const n = notifications.filter(not => not.id !== sc._id);
+        dispatch(setNotifications({ notifications: n }));
+      }
     }
   }
 

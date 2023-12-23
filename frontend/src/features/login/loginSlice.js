@@ -19,6 +19,11 @@ const initialState = {
     openedFilesCurrentCode: [],
     openedView: null,
     openedCode: "",
+    notifications: [],
+    isTyping: {
+        status: false,
+        userId: "",
+    },
 }
 
 export const authSlice = createSlice({
@@ -71,9 +76,12 @@ export const authSlice = createSlice({
             state.messagesLoading = false
         },
         addMessage: (state, actions) => {
-            const m = state.selectedChatMessages
-            m.push(actions.payload.message)
-            state.selectedChatMessages = m
+            const sm = state.selectedChatMessages.filter(sm => sm._id === actions.payload.message._id)
+            if (sm.length === 0) {
+                const m = state.selectedChatMessages
+                m.push(actions.payload.message)
+                state.selectedChatMessages = m
+            }
         },
         setFolderLoading: (state, actions) => {
             state.folderLoading = actions.payload.loading
@@ -91,7 +99,13 @@ export const authSlice = createSlice({
         },
         setOpenedCode: (state, actions) => {
             state.openedCode = actions.payload.code
-        }
+        },
+        setIsTyping: (state, actions) => {
+            state.isTyping = actions.payload.isTyping
+        },
+        setNotifications: (state, actions) => {
+            state.notifications = actions.payload.notifications
+        },
     }
 })
 
@@ -104,10 +118,12 @@ export const {
     setFolder,
     selectChat,
     addMessage,
+    setIsTyping,
     setOpenedView,
     setOpenedCode,
     setOpenedFiles,
     setFolderLoading,
+    setNotifications,
     setMessagesLoaded,
     setMessagesLoading,
     setSelectedChatMessages,

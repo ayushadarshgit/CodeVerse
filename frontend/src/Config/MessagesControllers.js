@@ -1,3 +1,5 @@
+import { fetchChats } from "./ChatControllers";
+
 export const getAllMessages = async (chatId, loadComplete, setSelecetedChatMessagesFunction, setShowSnackFunction) => {
     const token = localStorage.getItem("codeverseUserSignInToken");
     const response = await fetch(
@@ -22,7 +24,7 @@ export const getAllMessages = async (chatId, loadComplete, setSelecetedChatMessa
     loadComplete();
 }
 
-export const sendMessage = async (message, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat) => {
+export const sendMessage = async (message, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat, socket, getChatsFunction) => {
     const token = localStorage.getItem("codeverseUserSignInToken");
     message.chat = selectedChat;
     const response = await fetch(
@@ -41,6 +43,8 @@ export const sendMessage = async (message, addMessageFunction, setShowSnackFunct
     const json = await response.json();
     if (json.success) {
         addMessageFunction(json.message);
+        fetchChats(getChatsFunction);
+        socket.emit("new message", json.message);
     } else {
         setShowSnackFunction(json.err, "error");
     }
@@ -67,15 +71,15 @@ export const getDate = (date) => {
     const hour = newDate.getHours();
     const min = newDate.getMinutes();
     const todayDate = new Date();
-    if(todayDate.getMonth()+1 === month && todayDate.getFullYear() === year){
+    if (todayDate.getMonth() + 1 === month && todayDate.getFullYear() === year) {
         const d = todayDate.getDate();
-        if(d === day){
+        if (d === day) {
             return {
                 date: `Today`,
                 time: `${hour} : ${min}`
             }
         }
-        if(d === day+1){
+        if (d === day + 1) {
             return {
                 date: `Yesterday`,
                 time: `${hour} : ${min}`
@@ -94,7 +98,7 @@ export const getShowDate = (messages, ind) => {
     const datePrev = getDate(messages[ind - 1].createdAt);
     if (date.date !== datePrev.date) {
         return true
-    }else{
+    } else {
         return false
     }
 }

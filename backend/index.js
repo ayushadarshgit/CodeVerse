@@ -62,7 +62,7 @@ app.use("/codeverse/verify", verificationRoutes);
 
 
 app.all('*', (req, res, next) => {
-    next(new ExpressError('Page Not Found',404))
+    next(new ExpressError('Page Not Found', 404))
 })
 
 app.use((err, req, res, next) => {
@@ -71,7 +71,40 @@ app.use((err, req, res, next) => {
     return res.status(err.statusCode).json({ success: false, err: err.message });
 })
 
-
-app.listen(5000, () => {
+const PORT = 5000;
+const server = app.listen(PORT, () => {
     console.log("Listening on port 5000")
+})
+
+const io = require("socket.io")(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: "http://localhost:3000"
+    }
+});
+
+io.on("connection", (socket) => {
+    socket.on("setup", (userData) => {
+        socket.join(userData._id);
+        socket.emit("connected");
+    });
+
+    socket.on("join chat", (userId) => {
+        if(!io.sockets.adapter.rooms.has(userId)){
+            socket.join(userId);
+        }
+    });
+
+    socket.on("new message", (newMessageRecieved) => {
+        var chat = newMessageRecieved.chat;
+        if (!chat.users) return console.log("chat.users not defined");
+        chat.users.forEach(user => {
+            if (user._id === newMessageRecieved.sender._id) return;
+            socket.in(user._id).emit("message recieved", newMessageRecieved);
+        })
+    })
+
+    socket.off("setup", (userData) => {
+        socket.leave(userData._id);
+    })
 })

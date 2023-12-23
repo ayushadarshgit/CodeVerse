@@ -1,9 +1,10 @@
-import { Box } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import React from 'react'
 import CompilerTopBar from '../components/CompilerTopBar'
-import MessangerMain from '../components/MessangerMain'
+import AllChatComponent from '../components/AllChatComponent'
+import MainChat from '../components/MainChat'
 
-export default function Messanger() {
+export default function Messanger({ socket }) {
   return (
     <Box
       sx={{
@@ -16,7 +17,18 @@ export default function Messanger() {
       }}
     >
       <CompilerTopBar text="( Messenger )" />
-      <MessangerMain />
+      <Stack
+        sx={{
+          width: "100%",
+          height: "91.25%",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+          flexDirection: "row"
+        }}
+      >
+        <AllChatComponent />
+        <MainChat socket={socket} />
+      </Stack>
     </Box>
   )
 }

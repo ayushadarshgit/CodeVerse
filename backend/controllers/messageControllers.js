@@ -2,6 +2,7 @@ const Message = require("../models/Message");
 const Code = require("../models/Code");
 const Chat = require("../models/Chat");
 const ExpressError = require("../utils/ExpressError");
+const User = require("../models/User");
 
 module.exports.sendMessage = async (req, res) => {
     const { message } = req.body;
@@ -22,10 +23,14 @@ module.exports.sendMessage = async (req, res) => {
     newMessage.sender = req.user;
     newMessage.readBy.push(req.user);
     await newMessage.save();
-    const m = await Message.findById(newMessage._id)
+    var m = await Message.findById(newMessage._id)
         .populate("sender")
         .populate("code")
-        .populate("readBy");
+        .populate("readBy")
+        .populate("chat");
+    m = await User.populate(m, {
+        path: 'chat.users'
+    })
     chat.latestMessage = newMessage;
     await chat.save();
     if (!m) {

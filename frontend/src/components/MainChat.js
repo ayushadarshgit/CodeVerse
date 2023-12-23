@@ -1,5 +1,5 @@
 import { Avatar, Button, CircularProgress, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getOtherIndex } from '../Config/ChatControllers';
 import { stringAvatar } from '../Config/AvatarControllers';
@@ -8,7 +8,7 @@ import SendIcon from '@mui/icons-material/Send';
 import CodeIcon from '@mui/icons-material/Code';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MessagesLoader from '../Loaders/MessagesLoader';
-import { addMessage, selectChat, setFolder, showSnack } from '../features/login/loginSlice';
+import { addMessage, selectChat, setChats, setFolder, showSnack } from '../features/login/loginSlice';
 import { getBorderBottomRadius, getBorderTopRadius, getDate, getShowDate, sendMessage } from '../Config/MessagesControllers';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -19,11 +19,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import { saveTempFile } from '../Config/EditorControllers';
 import { useNavigate } from 'react-router-dom';
 
-export default function MainChat() {
+export default function MainChat({ socket }) {
+  const stackRef = useRef();
   const selectedChat = useSelector(store => store.selectedChat);
   const user = useSelector(store => store.user);
   const messagesLoading = useSelector(store => store.messagesLoading);
   const selectedChatMessages = useSelector(store => store.selectedChatMessages);
+  const isTyping = useSelector(store => store.isTyping);
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -60,12 +62,16 @@ export default function MainChat() {
     }))
   }
 
+  const getChatsFunction = (chats) => {
+    dispatch(setChats({ chats: chats }))
+  }
+
   const sendMessageFunction = () => {
     if (message.message !== "") {
       setSendingMessage(true);
       const m = message;
       setMessage({ ...message, message: "" });
-      sendMessage(m, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat);
+      sendMessage(m, addMessageFunction, setShowSnackFunction, setSendingMessage, selectedChat, socket, getChatsFunction);
     }
   }
 
@@ -80,6 +86,9 @@ export default function MainChat() {
     const hours = d.getHours();
     const h = hours - 12;
     const minutes = d.getMinutes();
+    if (hours === 0) {
+      return `12 : ${minutes < 10 ? "0" : ""}${minutes} am`;
+    }
     if (h > 0) {
 
       return `${h < 10 ? "0" : ""}${h} : ${minutes < 10 ? "0" : ""}${minutes} pm`;
@@ -107,6 +116,16 @@ export default function MainChat() {
     saveTempFile(user.defaultfolder, code, setShowSnackFunction, navigate);
     dispatch(setFolder({ folder: null }));
   }
+
+  const scrollToBottom = () => {
+    if (stackRef.current) {
+      stackRef.current.scrollTop = stackRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [selectedChatMessages])
 
   const images = {
     javascript: "https://cdn.worldvectorlogo.com/logos/javascript-1.svg",
@@ -196,10 +215,13 @@ export default function MainChat() {
                     selectedChat.chatname)}
                 />
               </Stack>
-              <Typography
+              <Stack
                 sx={{
                   fontSize: "x-large",
                   color: "#ddd",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  flexDirection: "column"
                 }}
               >
                 {!selectedChat.isgroupchat ?
@@ -207,7 +229,15 @@ export default function MainChat() {
                   :
                   selectedChat.chatname
                 }
-              </Typography>
+                {isTyping.status && <Stack
+                  sx={{
+                    fontSize: "large",
+                    color: "#ddd"
+                  }}
+                >
+                  typing...
+                </Stack>}
+              </Stack>
             </Stack>
             <Stack
               sx={{
@@ -249,6 +279,7 @@ export default function MainChat() {
                 }}
               >
                 <Stack
+                  ref={stackRef}
                   sx={{
                     height: "495px",
                     width: "100%",

@@ -24,6 +24,9 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
         if (todayDate.getMonth() + 1 === month && todayDate.getFullYear() === year) {
             const d = todayDate.getDate();
             if (d === day) {
+                if(hours===0){
+                    return `12 : ${minutes < 10 ? "0" : ""}${minutes} am`;
+                }
                 if (h > 0) {
 
                     return `${h < 10 ? "0" : ""}${h} : ${minutes < 10 ? "0" : ""}${minutes} pm`;

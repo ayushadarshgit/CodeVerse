@@ -123,7 +123,7 @@ export default function ViewCodeContent({ codeLoading, setCodeLoading, editorRef
                 title: openedView.filename
             }
         }
-        sendMessage(m, addMessageFunction, setShowSnackFunction, setSendingMessage, chat);
+        sendMessage(m, addMessageFunction, setShowSnackFunction, setSendingMessage, chat, getChatsFunction);
         setOpenBottomDrawer(false);
     }
 

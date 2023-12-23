@@ -3,11 +3,10 @@ import React, { useState } from 'react'
 import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import MessageIcon from '@mui/icons-material/Message';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../features/login/loginSlice';
+import { logout, selectChat } from '../features/login/loginSlice';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 
 const BootstrapTooltip = styled(({ className, ...props }) => (
@@ -25,6 +24,7 @@ export default function SideNav({ highlight }) {
     const iconStyle = { color: "#fff", fontSize: "40px", cursor: "pointer" };
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const notifications = useSelector(state => state.notifications);
 
     const isLoggedIn = useSelector(store => store.isLoggedIn);
     const user = useSelector(state => state.user);
@@ -43,8 +43,10 @@ export default function SideNav({ highlight }) {
     const handleClick = (u) => {
         navigate(u);
         setAnchorEl(null)
+        dispatch(selectChat({ selectedChat: null }));
     }
     const handleLogout = () => {
+        localStorage.removeItem("codeverseUserSignInToken");
         dispatch(logout());
     }
     function stringToColor(string) {
@@ -131,9 +133,11 @@ export default function SideNav({ highlight }) {
                 </Box>
                 <Box borderLeft={highlight === "messages" ? "3px solid blue" : "none"} backgroundColor={highlight === "messages" ? "#333" : "none"}>
                     <IconButton onClick={() => handleClick("/messanger")}>
-                        <BootstrapTooltip title="Messages" placement="right">
-                            <MessageIcon sx={iconStyle} />
-                        </BootstrapTooltip>
+                        <Badge badgeContent={notifications.length} color='error'>
+                            <BootstrapTooltip title="Messages" placement="right">
+                                <MessageIcon sx={iconStyle} />
+                            </BootstrapTooltip>
+                        </Badge>
                     </IconButton>
                 </Box>
                 {openedFiles.length > 0 && <Box borderLeft={highlight === "files" ? "3px solid blue" : "none"} backgroundColor={highlight === "files" ? "#333" : "none"}>
@@ -153,16 +157,16 @@ export default function SideNav({ highlight }) {
                     justifyContent: "space-evenly",
                     alignItems: "center",
                     flexDirection: "column",
-                    height: "20%"
+                    height: "10%"
                 }}
             >
-                <IconButton>
-                    <Badge badgeContent={0} color='error'>
+                {/* <IconButton>
+                    <Badge badgeContent={notifications.length} color='error'>
                         <BootstrapTooltip title="Notifications" placement="right">
                             <NotificationsIcon sx={iconStyle} />
                         </BootstrapTooltip>
                     </Badge>
-                </IconButton>
+                </IconButton> */}
                 <IconButton
                     id='nav-positioned-button'
                     aria-controls={open ? 'nav-positioned-menu' : undefined}
