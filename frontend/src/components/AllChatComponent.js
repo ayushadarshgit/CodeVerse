@@ -48,7 +48,7 @@ export default function AllChatComponent() {
   }
 
   const setSelectedChatFunction = (sc) => {
-    if (selectedChat !== sc) {
+    if (!selectedChat || selectedChat._id !== sc._id) {
       dispatch(selectChat({ selectedChat: sc }));
       dispatch(setMessagesLoading());
       if (sc) {

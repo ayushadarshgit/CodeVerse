@@ -8,13 +8,13 @@ import CompilerTopBar from '../components/CompilerTopBar';
 export default function Compiler() {
   const editorRef = useRef(null);
   const [lang, setLang] = useState("cpp");
-  const handleEditorDidMount = (editor, monaco)=> {
+  const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   }
   const onResizeStart = (event, { size, handle }) => {
-    
+
   };
-  const onResizeStop = (e, {size,handle}) => {
+  const onResizeStop = (e, { size, handle }) => {
 
   }
   return (
@@ -27,12 +27,13 @@ export default function Compiler() {
       justifyContent: "flex-start",
       backgroundColor: "#000"
     }}>
-      <CompilerTopBar text="( Compiler )"/>
+      <CompilerTopBar text="( Compiler )" />
       <div style={{
         display: "flex",
         height: "90%",
         width: "100%",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        overflow: "scroll"
       }}>
         <Resizable
           defaultSize={{

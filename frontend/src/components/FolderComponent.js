@@ -165,6 +165,10 @@ export default function FolderComponent() {
 
     const deleteFileFunction = (id) => {
         setFolderLoadingFunction(true);
+        const f = openedFiles.filter(fi => fi._id !== id);
+        const sc = openedFilesSavedCode.filter(fi => fi.id !== id);
+        const cc = openedFilesCurrentCode.filter(fi => fi.id !== id);
+        dispatch(setOpenedFiles({ files: f, savedCode: sc, currentCode: cc }))
         deleteExistingFile(id, folder._id, setShowSnackFunction, getFolderDetailsFunction, setFolderLoadingFunction);
         setHighlightFile(-1);
     }
@@ -198,7 +202,7 @@ export default function FolderComponent() {
             if (res.success) {
                 sc.push({ id: file._id, code: res.code.code });
                 cc.push({ id: file._id, code: res.code.code });
-                console.log(sc,cc);
+                console.log(sc, cc);
                 console.log(sc[0].code === cc[0].code);
                 dispatch(setOpenedFiles({ files: f, savedCode: sc, currentCode: cc }));
                 dispatch(setOpenedView({ view: file }));

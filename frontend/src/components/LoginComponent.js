@@ -145,11 +145,6 @@ export default function LoginComponent({ handleClick }) {
                             </InputAdornment>
                         ),
                     }}
-                    Input={{
-                        style: {
-                            color: '#fff',
-                        },
-                    }}
                 />
             </Stack>
             <Stack

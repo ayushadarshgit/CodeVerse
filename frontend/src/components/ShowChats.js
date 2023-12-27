@@ -9,7 +9,7 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
     const selectedChat = useSelector(state => state.selectedChat);
     const user = useSelector(state => state.user);
     const trimMessage = (m) => {
-        const x = m.slice(m, 17);
+        const x = m.slice(m, 14);
         return x;
     }
     const getTime = (date) => {
@@ -24,7 +24,7 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
         if (todayDate.getMonth() + 1 === month && todayDate.getFullYear() === year) {
             const d = todayDate.getDate();
             if (d === day) {
-                if(hours===0){
+                if (hours === 0) {
                     return `12 : ${minutes < 10 ? "0" : ""}${minutes} am`;
                 }
                 if (h > 0) {
@@ -43,14 +43,14 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
     return (
         <Stack
             sx={{
-                backgroundColor: id === selectedChat ? "#333" : "#444",
+                backgroundColor: (selectedChat && id._id === selectedChat._id) ? "#333" : "#444",
                 marginTop: "10px",
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
                 cursor: "pointer",
                 width: "95%",
-                border: id !== selectedChat ? "none" : "0.5px solid #555",
+                border: (selectedChat && id._id !== selectedChat._id) ? "none" : "0.5px solid #555",
                 borderRadius: "5px"
             }}
             onClick={() => handleClick(id)}
@@ -107,7 +107,7 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
                                                 <DoneAllIcon sx={{ color: "#aaa", fontSize: "large" }} />
                                         }
                                     </Stack>}
-                                    {trimMessage(lastMessage.code.title+" Code")}{(lastMessage.code.title.length + "Code") > 12 && "..."}
+                                {trimMessage(lastMessage.code.title + " Code")}{(lastMessage.code.title.length + "Code") > 14 && "..."}
                             </Stack>
                             <Stack sx={{ marginLeft: "5px", fontSize: "small" }}>{getTime(lastMessage.createdAt)}</Stack>
                         </Typography>
@@ -137,7 +137,7 @@ export default function ShowChats({ name, email, lastMessage, isSearched, handle
                                                 <DoneAllIcon sx={{ color: "#aaa", fontSize: "large" }} />
                                         }
                                     </Stack>}
-                                {trimMessage(lastMessage.message)}{lastMessage.message.length > 12 && "..."}
+                                {trimMessage(lastMessage.message)}{lastMessage.message.length > 14 && "..."}
                             </Stack>
                             <Stack sx={{ marginLeft: "5px", fontSize: "small" }}>{getTime(lastMessage.createdAt)}</Stack>
                         </Typography>

@@ -1,4 +1,4 @@
-import { Avatar, Button, CircularProgress, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Button, CircularProgress, IconButton, InputAdornment, Modal, Stack, TextField, Typography } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getOtherIndex } from '../Config/ChatControllers';
@@ -27,6 +27,8 @@ export default function MainChat({ socket }) {
   const selectedChatMessages = useSelector(store => store.selectedChatMessages);
   const isTyping = useSelector(store => store.isTyping);
   const navigate = useNavigate();
+
+  const [showChatDetails, setShowChatDetails] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -247,7 +249,7 @@ export default function MainChat({ socket }) {
                 alignItems: "center",
               }}
             >
-              <Button color='success'>
+              <Button color='success' onClick={() => setShowChatDetails(true)}>
                 <InfoIcon sx={{ fontSize: "xx-large", color: "#fff" }} />
               </Button>
             </Stack>
@@ -328,8 +330,8 @@ export default function MainChat({ socket }) {
                             alignItems: "center",
                             borderRadius: "10px",
                             marginTop: ind === 0 ? "1px" : "15px",
-                            padding: "10px 20px",
-                            fontSize: "larger",
+                            padding: "8px 15px",
+                            fontSize: "large",
                             marginBottom: "10px"
                           }}
                         >
@@ -584,6 +586,116 @@ export default function MainChat({ socket }) {
           </Stack>
         </Stack>
       }
+      {selectedChat && <Modal
+        open={showChatDetails}
+        onClose={() => setShowChatDetails(false)}
+      >
+        <Stack sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: "#333",
+          border: '1px solid #222',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Stack
+            sx={{
+              flexDirection: "row",
+              width: "400px",
+              height: "70px",
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <Stack
+              sx={{
+                width: "100px",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              <Avatar
+                id="avatar-button"
+                style={{ color: "#fff", fontSize: "xx-large", width: 70, height: 70 }}
+                {...stringAvatar(!selectedChat.isgroupchat ?
+                  selectedChat.users[getOtherIndex(selectedChat.users, user)].name
+                  :
+                  selectedChat.chatname)}
+              />
+            </Stack>
+            <Stack
+              sx={{
+                fontSize: "xx-large",
+                color: "#ddd",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                flexDirection: "column"
+              }}
+            >
+              {!selectedChat.isgroupchat ?
+                selectedChat.users[getOtherIndex(selectedChat.users, user)].name
+                :
+                selectedChat.chatname
+              }
+            </Stack>
+          </Stack>
+          <Stack
+            sx={{
+              width: "100%",
+              marginTop: "20px",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <Stack
+              sx={{
+                fontSize: "x-large",
+                color: "#ddd",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                flexDirection: "column"
+              }}
+            >
+              {!selectedChat.isgroupchat ?
+                "Email: -"
+                :
+                "Created On: -"
+              }
+            </Stack>
+            <Stack
+              sx={{
+                fontSize: "x-large",
+                color: "#ddd",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                flexDirection: "column"
+              }}
+            >
+              {!selectedChat.isgroupchat ?
+                selectedChat.users[getOtherIndex(selectedChat.users, user)].email
+                :
+                getDate(selectedChat.createdAt).date
+              }
+            </Stack>
+          </Stack>
+          <Stack
+            sx={{
+              width: "100%",
+              marginTop: "15px",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant='contained' color="error" onClick={()=>setShowChatDetails(false)}>Close</Button>
+          </Stack>
+        </Stack>
+      </Modal>}
     </Stack>
   )
 }

@@ -123,7 +123,7 @@ export default function Login({ redirected, component }) {
                     <Stack
                         sx={{
                             width: { xs: "100%", lg: "60%" },
-                            height: "100%",
+                            height: "99.5%",
                             backgroundColor: "#333",
                             borderTopRightRadius: "8px",
                             borderBottomRightRadius: "8px",
