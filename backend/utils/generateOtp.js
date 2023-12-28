@@ -29,3 +29,19 @@ module.exports.getForgotPasswordHtml = (name, otp) => {
         <p>Regards,<br>Codeverse</p>
     `
 }
+
+module.exports.confirmationMail = (name) => {
+    return `<h2>Hello ${name},</h2>
+    <p>This mail is sent to on behalf of Codeverse. This is a confirmation mail regarding your Email Verification</p>
+    <h5>We are greateful that you choose Codeverse.</h5>
+    <p>Thanks for Choosing Codeverse</p>
+    <p>Regards,<br>Codeverse</p>`
+}
+
+module.exports.passwordChangeConfirmationMail = (name) => {
+    return `<h2>Hello ${name},</h2>
+    <p>This mail is sent to on behalf of Codeverse. This is a confirmation mail regarding your password change request</p>
+    <h5>The password of your Codeverse account is changed successfully.</h5>
+    <p>Thanks for Choosing Codeverse</p>
+    <p>Regards,<br>Codeverse</p>`
+}

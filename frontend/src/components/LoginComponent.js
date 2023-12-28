@@ -10,9 +10,12 @@ import { useDispatch } from 'react-redux';
 import { login, showSnack } from '../features/login/loginSlice';
 import { useNavigate } from 'react-router-dom';
 import SnackBar from './SnackBar';
+import ForgotPassword from './ForgotPassword';
 
 
 export default function LoginComponent({ handleClick }) {
+
+    const [forgotPassword, setForgotPassword] = useState(false);
 
     const navigate = useNavigate();
 
@@ -68,144 +71,161 @@ export default function LoginComponent({ handleClick }) {
     }
 
     return (
-        <Stack
-            sx={{
-                width: "100%",
-                alignItems: "center",
-                flexDirection: "column",
-                justifyContent: "space-evenly"
-            }}
-        >
-            <Stack
+        <>
+            {!forgotPassword ? <Stack
                 sx={{
-                    width: "70%",
-                    marginTop: "20px",
-                    border: "0.5px solid #555",
-                    borderBottom: "none"
+                    width: "100%",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    justifyContent: "space-evenly"
                 }}
             >
-                <TextField
-                    required
-                    label="Email address"
-                    color='warning'
-                    variant='filled'
-                    value={user.username}
-                    onChange={handleChange}
-                    name='username'
-                    InputLabelProps={{
-                        style: {
-                            color: '#fff',
-                        },
-                    }}
-                    InputProps={{
-                        style: {
-                            color: '#fff',
-                            fontSize: "20px"
-                        },
-                    }}
-                    Input={{
-                        style: {
-                            color: '#fff',
-                        },
-                    }}
-                />
-            </Stack>
-            <Stack
-                sx={{
-                    width: "70%",
-                    marginTop: "20px",
-                    border: "0.5px solid #555",
-                    borderBottom: "none"
-                }}
-            >
-                <TextField
-                    required
-                    label="Password"
-                    color='warning'
-                    type={showLoginPassword ? 'password' : 'text'}
-                    variant='filled'
-                    name='password'
-                    value={user.password}
-                    onChange={handleChange}
-                    InputLabelProps={{
-                        style: {
-                            color: '#fff',
-                        },
-                    }}
-                    InputProps={{
-                        style: {
-                            color: '#fff',
-                            fontSize: "20px"
-                        },
-                        endAdornment: (
-                            <InputAdornment position="start">
-                                <IconButton onClick={() => setShowLoginPassword(!showLoginPassword)}>
-                                    {!showLoginPassword ? <VisibilityOffIcon sx={{ fontSize: "xx-large", color: '#fff' }} /> : <VisibilityIcon sx={{ fontSize: "xx-large", color: '#fff' }} />}
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-            </Stack>
-            <Stack
-                sx={{
-                    width: "65%",
-                    marginTop: "40px",
-                }}
-            >
-                <Button
-                    variant='contained'
-                    color='warning'
+                <Stack
                     sx={{
-                        height: "50px",
-                        fontSize: "larger"
+                        width: "70%",
+                        marginTop: "20px",
+                        border: "0.5px solid #555",
+                        borderBottom: "none"
                     }}
-                    startIcon={<LoginIcon />}
-                    onClick={handleLogin}
-                    disabled={loading}
                 >
-                    Log In
-                </Button>
-            </Stack>
-            <Stack
-                sx={{
-                    width: "65%",
-                    marginTop: "20px",
-                }}
-            >
-                <Button
-                    variant='contained'
-                    color='success'
+                    <TextField
+                        required
+                        label="Email address"
+                        color='warning'
+                        variant='filled'
+                        value={user.username}
+                        onChange={handleChange}
+                        name='username'
+                        InputLabelProps={{
+                            style: {
+                                color: '#fff',
+                            },
+                        }}
+                        InputProps={{
+                            style: {
+                                color: '#fff',
+                                fontSize: "20px"
+                            },
+                        }}
+                    />
+                </Stack>
+                <Stack
                     sx={{
-                        height: "50px",
-                        fontSize: "larger"
+                        width: "70%",
+                        marginTop: "20px",
+                        border: "0.5px solid #555",
+                        borderBottom: "none"
                     }}
-                    startIcon={<FiberNewIcon />}
-                    onClick={handleClick}
                 >
-                    New to Codeverse
-                </Button>
-            </Stack>
-            <Stack
-                sx={{
-                    width: "65%",
-                    marginTop: "20px",
-                }}
-            >
-                <Button
-                    variant='contained'
-                    color='primary'
+                    <TextField
+                        required
+                        label="Password"
+                        color='warning'
+                        type={showLoginPassword ? 'password' : 'text'}
+                        variant='filled'
+                        name='password'
+                        value={user.password}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            style: {
+                                color: '#fff',
+                            },
+                        }}
+                        InputProps={{
+                            style: {
+                                color: '#fff',
+                                fontSize: "20px"
+                            },
+                            endAdornment: (
+                                <InputAdornment position="start">
+                                    <IconButton onClick={() => setShowLoginPassword(!showLoginPassword)}>
+                                        {!showLoginPassword ? <VisibilityOffIcon sx={{ fontSize: "xx-large", color: '#fff' }} /> : <VisibilityIcon sx={{ fontSize: "xx-large", color: '#fff' }} />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Stack>
+                <Stack
                     sx={{
-                        height: "50px",
-                        fontSize: "larger"
+                        width: "70%",
+                        marginTop: "10px",
+                        justifyContent: "flex-end",
+                        alignItems: "flex-end"
                     }}
-                    startIcon={<GoogleIcon />}
-                    onClick={loginGoogle}
                 >
-                    Continue using Google
-                </Button>
-            </Stack>
-            <SnackBar />
-        </Stack>
+                    <Button
+                        sx={{
+                            height: "35px",
+                            width: "170px",
+                            borderRadius: "5px"
+                        }}
+                        color='secondary'
+                        onClick={() => setForgotPassword(true)}
+                    >
+                        Forgot Password
+                    </Button>
+                </Stack>
+                <Stack
+                    sx={{
+                        width: "65%",
+                        marginTop: "20px",
+                    }}
+                >
+                    <Button
+                        variant='contained'
+                        color='warning'
+                        sx={{
+                            height: "50px",
+                            fontSize: "larger"
+                        }}
+                        startIcon={<LoginIcon />}
+                        onClick={handleLogin}
+                        disabled={loading}
+                    >
+                        Log In
+                    </Button>
+                </Stack>
+                <Stack
+                    sx={{
+                        width: "65%",
+                        marginTop: "20px",
+                    }}
+                >
+                    <Button
+                        variant='contained'
+                        color='success'
+                        sx={{
+                            height: "50px",
+                            fontSize: "larger"
+                        }}
+                        startIcon={<FiberNewIcon />}
+                        onClick={handleClick}
+                    >
+                        New to Codeverse
+                    </Button>
+                </Stack>
+                <Stack
+                    sx={{
+                        width: "65%",
+                        marginTop: "20px",
+                    }}
+                >
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        sx={{
+                            height: "50px",
+                            fontSize: "larger"
+                        }}
+                        startIcon={<GoogleIcon />}
+                        onClick={loginGoogle}
+                    >
+                        Continue using Google
+                    </Button>
+                </Stack>
+                <SnackBar />
+            </Stack> : <ForgotPassword setForgotPassword={setForgotPassword} />}
+        </>
     )
 }

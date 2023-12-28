@@ -38,8 +38,6 @@ export default function GooglLoginSuccess() {
         // eslint-disable-next-line
     }, [navigate, location.search]);
     return (
-        <div>
-            This is from frontend
-        </div>
+        <div></div>
     )
 }

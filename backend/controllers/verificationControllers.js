@@ -4,11 +4,9 @@ const User = require("../models/User");
 const ExpressError = require("../utils/ExpressError");
 const Otp = require("../models/Otp");
 const Bcrypt = require("../bcrypt/index");
-const jwt = require("jsonwebtoken");
-
-const JWTSecret = process.env.JWTSECRET;
 
 module.exports.sendOtp = async (req, res) => {
+    await Otp.deleteMany({ user: req.user });
     const otp = generateOtp.getOtp(6);
 
     const createdOtp = new Otp();
@@ -32,7 +30,7 @@ module.exports.sendOtp = async (req, res) => {
         html: generateOtp.getBoilerHtml(req.user.name, otp, req.user.id)
     }, function (error, info) {
         if (error) {
-            return res.status(400).json(error)
+            return res.status(400).json({ success: false, err: error })
         }
         else {
 
@@ -44,6 +42,7 @@ module.exports.sendOtp = async (req, res) => {
 module.exports.verifyEmail = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
+    await Otp.deleteMany({ user: user });
     if (!user) {
         throw new ExpressError("User not Identified kindly try to verify using otp", 404);
     }
@@ -79,9 +78,23 @@ module.exports.verifyOtp = async (req, res) => {
     }
     await User.findByIdAndUpdate(req.user._id, {
         isEmailVerified: true
-    })
+    });
+    const user = await User.findById(req.user._id, "-password");
     await Otp.deleteMany({ user: req.user });
-    return res.status(200).json({ success: true, message: "User verified successfully" });
+    const transporter = nodeMailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GOOGLE_APP_EMAIL,
+            pass: process.env.GOOGLE_APP_PASSWORD
+        }
+    });
+    transporter.sendMail({
+        from: 'Codeverse <codeverse@gmail.com>',
+        to: req.user.email,
+        subject: 'Email verifcation sucessfull',
+        html: generateOtp.confirmationMail(req.user.name)
+    })
+    return res.status(200).json({ success: true, message: "User verified successfully", user: user });
 }
 
 module.exports.forgotPassword = async (req, res) => {
@@ -95,6 +108,7 @@ module.exports.forgotPassword = async (req, res) => {
     if (!user) {
         throw new ExpressError("No user identified with the given email", 400);
     }
+    await Otp.deleteMany({ user: user });
     const createdOtp = new Otp();
     createdOtp.user = user;
     createdOtp.otp = otp;
@@ -117,7 +131,7 @@ module.exports.forgotPassword = async (req, res) => {
         html: generateOtp.getForgotPasswordHtml(user.name, otp)
     }, function (error, info) {
         if (error) {
-            return res.status(400).json(error)
+            return res.status(400).json({ success: false, err: error })
         }
         else {
             return res.status(200).json({ success: true, email: info.accepted[0], token: user.lastToken });
@@ -126,35 +140,48 @@ module.exports.forgotPassword = async (req, res) => {
 }
 
 module.exports.changePassword = async (req, res) => {
-    const { userOtp, password } = req.body;
+    const { userOtp, password, email } = req.body;
     if (!userOtp) {
         throw new ExpressError("Enter the otp to verify", 400);
     }
-    const otp = await Otp.find({ user: req.user, isForgotPassword: true });
+    const u = await User.findOne({ email: email });
+    const otp = await Otp.find({ user: u, isForgotPassword: true });
     if (!otp) {
-        await Otp.deleteMany({ user: req.user });
+        await Otp.deleteMany({ user: u });
         throw new ExpressError("Otp might have been expired", 400);
     }
     if (otp.length === 0) {
-        await Otp.deleteMany({ user: req.user });
+        await Otp.deleteMany({ user: u });
         throw new ExpressError("Otp might have expired", 400);
     }
     if (otp.length > 1) {
-        await Otp.deleteMany({ user: req.user });
+        await Otp.deleteMany({ user: u });
         throw new ExpressError("Tried too many times,try again later", 400);
     }
     if (otp[0].otp !== userOtp) {
-        await Otp.deleteMany({ user: req.user });
+        await Otp.deleteMany({ user: u });
         throw new ExpressError("Otp not matching, Please try again", 400);
     }
     const p = await Bcrypt.hashPassword(password);
-    const token = jwt.sign({ username: req.user.email }, JWTSecret, { expiresIn: '7d' });
-    await User.findByIdAndUpdate(req.user._id, {
+    const user = await User.findByIdAndUpdate(u._id, {
         password: p,
         isEmailVerified: true,
-        lastToken: token
     })
-    await Otp.deleteMany({ user: req.user });
-    return res.status(200).json({ success: true, message: "User verified successfully", token: token });
+    await Otp.deleteMany({ user: u });
+    const transporter = nodeMailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GOOGLE_APP_EMAIL,
+            pass: process.env.GOOGLE_APP_PASSWORD
+        }
+    });
+
+    transporter.sendMail({
+        from: 'Codeverse <codeverse@gmail.com>',
+        to: u.email,
+        subject: 'Password Changed Successfully',
+        html: generateOtp.passwordChangeConfirmationMail(u.name)
+    })
+    return res.status(200).json({ success: true, message: "Password Changed Successfully" });
 
 }
